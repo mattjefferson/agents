@@ -1,0 +1,1 @@
+# Various cool prompts I have collected (and have not made into commands or skills)

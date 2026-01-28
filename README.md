@@ -1,4 +1,4 @@
 # Agent Files
 
-# My collection of skills and commands that I have picked built and collected from others.
+# My collection of skills, docs, scripts, commands, etc. that I have built, modified or picked up from others amazing engineers.
 
