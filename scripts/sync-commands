@@ -1,0 +1,425 @@
+#!/usr/bin/env bash
+# sync-commands - Sync commands to Claude and Codex
+#
+# Usage:
+#   sync-commands                         # Sync from default source
+#   sync-commands --dry-run               # Preview what would be synced
+#   sync-commands --src /path/to/commands # Sync from custom source
+#   sync-commands --prune                 # Remove extra commands from destinations
+#   sync-commands --help                  # Show help
+#
+set -euo pipefail
+
+VERSION="1.0.0"
+
+# -----------------------------------------------------------------------------
+# Configuration
+# -----------------------------------------------------------------------------
+GLOBAL_COMMANDS_DIR="$HOME/projects/agent-scripts/commands"
+
+# -----------------------------------------------------------------------------
+# Colors (fallback when gum not available)
+# -----------------------------------------------------------------------------
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+# Gum availability flag
+GUM_AVAILABLE=false
+
+# -----------------------------------------------------------------------------
+# Gum auto-installation
+# -----------------------------------------------------------------------------
+try_install_gum() {
+    if [[ "$(uname -s)" != "Darwin"* ]]; then
+        return 1
+    fi
+
+    echo -e "${BLUE}→${NC} Installing gum for prettier output..."
+
+    if command -v brew &> /dev/null; then
+        brew install gum &>/dev/null && return 0
+    fi
+
+    return 1
+}
+
+check_gum() {
+    if command -v gum &> /dev/null; then
+        GUM_AVAILABLE=true
+        return 0
+    fi
+
+    # Try to install gum via brew
+    if try_install_gum && command -v gum &> /dev/null; then
+        GUM_AVAILABLE=true
+        return 0
+    fi
+
+    return 1
+}
+
+# -----------------------------------------------------------------------------
+# Styled output functions
+# -----------------------------------------------------------------------------
+print_banner() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style \
+            --border rounded \
+            --border-foreground 212 \
+            --padding "0 2" \
+            --margin "1 0" \
+            --bold \
+            "🔄 sync-commands v${VERSION}" \
+            "Sync commands to Claude & Codex"
+    else
+        echo -e "\n${BOLD}${MAGENTA}╭───────────────────────────────────────────╮${NC}"
+        echo -e "${BOLD}${MAGENTA}│${NC}  ${BOLD}🔄 sync-commands v${VERSION}${NC}                    ${BOLD}${MAGENTA}│${NC}"
+        echo -e "${BOLD}${MAGENTA}│${NC}  ${DIM}Sync commands to Claude & Codex${NC}         ${BOLD}${MAGENTA}│${NC}"
+        echo -e "${BOLD}${MAGENTA}╰───────────────────────────────────────────╯${NC}\n"
+    fi
+}
+
+log_info() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 39 "ℹ $1"
+    else
+        echo -e "${GREEN}[info]${NC} $1"
+    fi
+}
+
+log_warn() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 214 "⚠ $1"
+    else
+        echo -e "${YELLOW}[warn]${NC} $1"
+    fi
+}
+
+log_error() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 196 "✗ $1"
+    else
+        echo -e "${RED}[error]${NC} $1" >&2
+    fi
+}
+
+log_success() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 82 "✓ $1"
+    else
+        echo -e "${GREEN}✓${NC} $1"
+    fi
+}
+
+log_step() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 39 "→ $1"
+    else
+        echo -e "${BLUE}→${NC} $1"
+    fi
+}
+
+show_help() {
+    check_gum || true
+
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style \
+            --border rounded \
+            --border-foreground 212 \
+            --padding "0 2" \
+            --margin "1 0" \
+            --bold \
+            "🔄 sync-commands v${VERSION}"
+
+        echo ""
+        gum style --foreground 214 --bold "SYNOPSIS"
+        echo "  sync-commands [OPTIONS]"
+        echo ""
+
+        gum style --foreground 214 --bold "DESCRIPTION"
+        gum style --padding "0 2" "Sync command files from source directory to Claude and Codex
+command directories."
+        echo ""
+
+        gum style --foreground 214 --bold "OPTIONS"
+        gum style --foreground 82 "  --src PATH"
+        gum style --foreground 245 "      Source commands directory (default: $GLOBAL_COMMANDS_DIR)"
+        gum style --foreground 82 "  --dry-run, -n"
+        gum style --foreground 245 "      Preview changes without modifying anything"
+        gum style --foreground 82 "  --prune"
+        gum style --foreground 245 "      Remove commands in destinations not present in source"
+        gum style --foreground 82 "  --help, -h"
+        gum style --foreground 245 "      Show this help message"
+        echo ""
+
+        gum style --foreground 214 --bold "EXAMPLES"
+        gum style --foreground 39 "  # Sync from default location"
+        echo "  sync-commands"
+        echo ""
+        gum style --foreground 39 "  # Sync from custom source"
+        echo "  sync-commands --src /path/to/commands"
+    else
+        echo -e "${BOLD}sync-commands${NC} v${VERSION}"
+        echo ""
+        echo "Sync commands to Claude & Codex"
+        echo ""
+        echo "USAGE:"
+        echo "  sync-commands [OPTIONS]"
+        echo ""
+        echo "OPTIONS:"
+        echo "  --src PATH      Source commands directory (default: $GLOBAL_COMMANDS_DIR)"
+        echo "  --dry-run, -n   Preview changes without modifying anything"
+        echo "  --prune         Remove commands in destinations not present in source"
+        echo "  --help, -h      Show this help message"
+        echo ""
+        echo "EXAMPLES:"
+        echo "  sync-commands                            # from default location"
+        echo "  sync-commands --src /path/to/commands    # from custom source"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+main() {
+    check_gum || true
+
+    DRY_RUN=false
+    PRUNE=false
+
+    # Parse arguments
+    SRC=""
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --help|-h)
+                show_help
+                exit 0
+                ;;
+            --dry-run|-n)
+                DRY_RUN=true
+                shift
+                ;;
+            --prune)
+                PRUNE=true
+                shift
+                ;;
+            --src)
+                if [[ -z "${2:-}" ]]; then
+                    log_error "--src requires a path argument"
+                    exit 1
+                fi
+                SRC="$2"
+                shift 2
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                echo "Usage: sync-commands [--src PATH] [--dry-run] [--prune] [--help]" >&2
+                exit 1
+                ;;
+            *)
+                log_error "Unexpected argument: $1"
+                exit 1
+                ;;
+        esac
+    done
+
+    # Source-of-truth commands directory (each command is a .md file)
+    SRC="${SRC:-$GLOBAL_COMMANDS_DIR}"
+
+    if [ ! -d "$SRC" ]; then
+        log_error "SRC directory not found: $SRC"
+        exit 1
+    fi
+
+    CLAUDE_COMMANDS="${CLAUDE_COMMANDS:-$HOME/.claude/commands}"
+    CODEX_COMMANDS="${CODEX_COMMANDS:-${CODEX_HOME:-$HOME/.codex}/prompts}"
+    # GEMINI_COMMANDS="${GEMINI_COMMANDS:-${GEMINI_HOME:-$HOME/.gemini}/commands}"
+
+    mkdir -p "$CLAUDE_COMMANDS" "$CODEX_COMMANDS"
+    # mkdir -p "$GEMINI_COMMANDS"
+
+    # Count commands (exclude README.md)
+    COMMAND_COUNT=$(find "$SRC" -maxdepth 1 -name "*.md" ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
+
+    print_banner
+
+    if $DRY_RUN; then
+        log_info "[DRY RUN] Would sync $COMMAND_COUNT commands"
+    else
+        log_info "Syncing $COMMAND_COUNT commands"
+    fi
+    log_step "Source: $SRC"
+    echo ""
+
+    # Collect command names for summary (basenames without .md)
+    COMMAND_NAMES=()
+    shopt -s nullglob
+    for f in "$SRC"/*.md; do
+        local basename
+        basename="$(basename "$f")"
+        # Skip README.md
+        [[ "$basename" == "README.md" ]] && continue
+        COMMAND_NAMES+=("$basename")
+    done
+    shopt -u nullglob
+
+    # Track stats per destination
+    CLAUDE_NEW=0 CLAUDE_UPD=0 CLAUDE_PRUNE=0
+    CODEX_NEW=0 CODEX_UPD=0 CODEX_PRUNE=0
+    # GEMINI_NEW=0 GEMINI_UPD=0 GEMINI_PRUNE=0
+
+    command_in_source() {
+        local needle="$1"
+        local cmd=""
+
+        for cmd in "${COMMAND_NAMES[@]}"; do
+            if [[ "$cmd" == "$needle" ]]; then
+                return 0
+            fi
+        done
+
+        return 1
+    }
+
+    sync_one_dest() {
+        local dest="$1"
+        local name="$2"
+
+        local new_count=0
+        local update_count=0
+        local prune_count=0
+
+        if [[ "$GUM_AVAILABLE" == "true" ]]; then
+            gum style --foreground 214 --bold "$name"
+        else
+            echo -e "${BOLD}${YELLOW}$name${NC}"
+        fi
+
+        for cmd in "${COMMAND_NAMES[@]}"; do
+            local src_file="$SRC/$cmd"
+            local dest_file="$dest/$cmd"
+            local is_new=false
+
+            # Check if command exists at destination
+            if [[ ! -f "$dest_file" ]]; then
+                is_new=true
+            fi
+
+            if $DRY_RUN; then
+                if $is_new; then
+                    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+                        gum style --foreground 39 "  + $cmd (new)"
+                    else
+                        echo -e "  ${CYAN}+${NC} $cmd ${DIM}(new)${NC}"
+                    fi
+                    ((new_count++))
+                else
+                    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+                        gum style --foreground 245 "  → $cmd (update)"
+                    else
+                        echo -e "  ${DIM}→ $cmd (update)${NC}"
+                    fi
+                    ((update_count++))
+                fi
+            else
+                cp "$src_file" "$dest_file"
+
+                if $is_new; then
+                    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+                        gum style --foreground 39 "  + $cmd (new)"
+                    else
+                        echo -e "  ${CYAN}+${NC} $cmd ${DIM}(new)${NC}"
+                    fi
+                    ((new_count++))
+                else
+                    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+                        gum style --foreground 82 "  ✓ $cmd (updated)"
+                    else
+                        echo -e "  ${GREEN}✓${NC} $cmd ${DIM}(updated)${NC}"
+                    fi
+                    ((update_count++))
+                fi
+            fi
+        done
+
+        if $PRUNE; then
+            shopt -s nullglob
+            for file in "$dest"/*.md; do
+                local dest_cmd
+                dest_cmd="$(basename "$file")"
+
+                if ! command_in_source "$dest_cmd"; then
+                    if $DRY_RUN; then
+                        if [[ "$GUM_AVAILABLE" == "true" ]]; then
+                            gum style --foreground 196 "  - $dest_cmd (prune)"
+                        else
+                            echo -e "  ${RED}-${NC} $dest_cmd ${DIM}(prune)${NC}"
+                        fi
+                    else
+                        if command -v trash &> /dev/null; then
+                            trash "$file"
+                        else
+                            rm -f "$file"
+                        fi
+
+                        if [[ "$GUM_AVAILABLE" == "true" ]]; then
+                            gum style --foreground 196 "  - $dest_cmd (pruned)"
+                        else
+                            echo -e "  ${RED}-${NC} $dest_cmd ${DIM}(pruned)${NC}"
+                        fi
+                    fi
+
+                    ((prune_count++))
+                fi
+            done
+            shopt -u nullglob
+        fi
+        echo ""
+
+        # Store counts based on destination name
+        case "$name" in
+            Claude) CLAUDE_NEW=$new_count; CLAUDE_UPD=$update_count; CLAUDE_PRUNE=$prune_count ;;
+            Codex)  CODEX_NEW=$new_count;  CODEX_UPD=$update_count;  CODEX_PRUNE=$prune_count ;;
+            # Gemini) GEMINI_NEW=$new_count; GEMINI_UPD=$update_count; GEMINI_PRUNE=$prune_count ;;
+        esac
+    }
+
+    sync_one_dest "$CLAUDE_COMMANDS" "Claude"
+    sync_one_dest "$CODEX_COMMANDS" "Codex"
+    # sync_one_dest "$GEMINI_COMMANDS" "Gemini"
+
+    # Summary table
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --border rounded --border-foreground 212 --padding "0 1" --margin "0" -- \
+            "$(printf "%-12s %5s %8s %7s\n" "Destination" "New" "Updated" "Pruned")" \
+            "$(printf "%-12s %5s %8s %7s\n" "------------" "-----" "--------" "------")" \
+            "$(printf "%-12s %5s %8s %7s\n" "Claude" "$CLAUDE_NEW" "$CLAUDE_UPD" "$CLAUDE_PRUNE")" \
+            "$(printf "%-12s %5s %8s %7s\n" "Codex" "$CODEX_NEW" "$CODEX_UPD" "$CODEX_PRUNE")"
+            # "$(printf "%-12s %5s %8s %7s\n" "Gemini" "$GEMINI_NEW" "$GEMINI_UPD" "$GEMINI_PRUNE")"
+    else
+        echo -e "${BOLD}Summary${NC}"
+        echo "┌──────────────┬─────┬─────────┬────────┐"
+        echo "│ Destination  │ New │ Updated │ Pruned │"
+        echo "├──────────────┼─────┼─────────┼────────┤"
+        printf "│ %-12s │ %3s │ %7s │ %6s │\n" "Claude" "$CLAUDE_NEW" "$CLAUDE_UPD" "$CLAUDE_PRUNE"
+        printf "│ %-12s │ %3s │ %7s │ %6s │\n" "Codex" "$CODEX_NEW" "$CODEX_UPD" "$CODEX_PRUNE"
+        # printf "│ %-12s │ %3s │ %7s │ %6s │\n" "Gemini" "$GEMINI_NEW" "$GEMINI_UPD" "$GEMINI_PRUNE"
+        echo "└──────────────┴─────┴─────────┴────────┘"
+    fi
+
+    echo ""
+    if $DRY_RUN; then
+        log_info "[DRY RUN] No changes made"
+    else
+        log_success "All commands synced!"
+    fi
+}
+
+main "$@"
