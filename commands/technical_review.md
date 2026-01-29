@@ -4,4 +4,4 @@ description: Have multiple specialized agents review the technical approach and 
 argument-hint: "[plan file path or plan content]"
 ---
 
-Have @agent-dhh-rails-reviewer @agent-kieran-rails-reviewer @agent-code-simplicity-reviewer review the technical approach in this plan in parallel.
+Use the `technical_review` skill for this command and follow its instructions.

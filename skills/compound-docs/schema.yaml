@@ -113,10 +113,10 @@ required_fields:
     description: "Impact severity"
 
 optional_fields:
-  rails_version:
+  version:
     type: string
     pattern: '^\d+\.\d+\.\d+$'
-    description: "Rails version where this was encountered (e.g., '7.1.0')"
+    description: "version where this was encountered (e.g., '7.1.0')"
 
   related_components:
     type: array[string]
@@ -169,7 +169,7 @@ validation_rules:
 #   - No example data for new feature in development
 #   - Rails db:seed doesn't demonstrate new capabilities
 # root_cause: incomplete_setup
-# rails_version: 7.1.2
+# version: 7.1.2
 # resolution_type: seed_data_update
 # severity: low
 # tags: [seed-data, dx, workflow]

@@ -6,7 +6,7 @@ description: Document a recently solved problem to compound your team's knowledg
 ## Arguments
 [optional: brief context about the fix]
 
-# /compound
+# /workflows-compound
 
 Coordinate multiple subagents working in parallel to document a recently solved problem.
 
@@ -65,7 +65,8 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
 
 ### 7. **Optional: Specialized Agent Invocation** (Post-Documentation)
    Based on problem type detected, automatically invoke applicable agents:
-   - **performance_issue** → `performance-oracle`
+   - **performance_issue** → `performance-wiz`
+   - **dependency_issue** → `dependency-detective`
    - **security_issue** → `security-sentinel`
    - **database_issue** → `data-integrity-guardian`
    - **test_failure** → `test-quality-reviewer`
@@ -126,8 +127,7 @@ Primary Subagent Results:
   ✓ Documentation Writer: Created complete markdown
 
 Specialized Agent Reviews (Auto-Triggered):
-  ✓ performance-oracle: Validated query optimization approach
-  ✓ kieran-rails-reviewer: Code examples meet Rails standards
+  ✓ performance-wiz: Validated query optimization approach
   ✓ code-simplicity-reviewer: Solution is appropriately minimal
   ✓ matts-style-editor: Documentation style verified
 
@@ -168,7 +168,7 @@ Build → Test → Find Issue → Research → Improve → Document → Validate
 
 <auto_invoke> <trigger_phrases> - "that worked" - "it's fixed" - "working now" - "problem solved" </trigger_phrases>
 
-<manual_override> Use /workflows:compound [context] to document immediately without waiting for auto-detection. </manual_override> </auto_invoke>
+<manual_override> Use /workflows-compound [context] to document immediately without waiting for auto-detection. </manual_override> </auto_invoke>
 
 ## Routes To
 
@@ -179,12 +179,11 @@ Build → Test → Find Issue → Research → Improve → Document → Validate
 Based on problem type, these agents can enhance documentation:
 
 ### Code Quality & Review
-- **kieran-rails-reviewer**: Reviews code examples for Rails best practices
 - **code-simplicity-reviewer**: Ensures solution code is minimal and clear
 - **pattern-recognition-specialist**: Identifies anti-patterns or repeating issues
 
 ### Specific Domain Experts
-- **performance-oracle**: Analyzes performance_issue category solutions
+- **performance-wiz**: Analyzes performance_issue category solutions
 - **security-sentinel**: Reviews security_issue solutions for vulnerabilities
 - **test-quality-reviewer**: Creates test cases for prevention strategies
 - **data-integrity-guardian**: Reviews database_issue migrations and queries
@@ -200,5 +199,5 @@ Based on problem type, these agents can enhance documentation:
 
 ## Related Commands
 
-- `/research [topic]` - Deep investigation (searches docs/solutions/ for patterns)
+- `/repo-research-analyst [topic]` - Deep investigation (searches docs/solutions/ for patterns)
 - `/workflows-plan` - Planning workflow (references documented solutions)

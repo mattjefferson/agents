@@ -72,13 +72,13 @@ Refine the idea through collaborative dialogue using the **AskUserQuestion tool*
 First, I need to understand the project's conventions, existing patterns, and any documented learnings. This is fast and local - it informs whether external research is needed.
 </thinking>
 
-Run these agents **in parallel** to gather local context:
+Run these skills **in parallel** to gather local context:
 
-- Task repo-research-analyst(feature_description)
-- Task learnings-researcher(feature_description)
+- Task repo-research-analyst (feature_description)
+- Task learnings-researcher (feature_description)
 
 **What to look for:**
-- **Repo research:** existing patterns, CLAUDE.md guidance, technology familiarity, pattern consistency
+- **Repo research:** existing patterns, AGENTS.md guidance, technology familiarity, pattern consistency
 - **Learnings:** documented solutions in `docs/solutions/` that might apply (gotchas, patterns, lessons learned)
 
 These findings inform the next step.
@@ -105,8 +105,8 @@ Examples:
 
 Run these agents in parallel:
 
-- Task best-practices-researcher(feature_description)
-- Task framework-docs-researcher(feature_description)
+- Task best-practices-researcher (feature_description)
+- Task framework-docs-researcher (feature_description)
 
 ### 1.6. Consolidate Research
 
@@ -150,7 +150,7 @@ Think like a product manager - what would make this issue clear and actionable? 
 
 After planning the issue structure, run SpecFlow Analyzer to validate and refine the feature specification:
 
-- Task spec-flow-analyzer(feature_description, research_findings)
+- Task spec-flow-analyzer (feature_description, research_findings)
 
 **SpecFlow Analyzer Output:**
 
@@ -506,10 +506,10 @@ After writing the plan file, use the **AskUserQuestion tool** to present these o
 
 Based on selection:
 - **Open plan in editor** → Run `open docs/plans/<plan_filename>.md` to open the file in the user's default editor
-- **`/deepen-plan`** → Call the /deepen-plan command with the plan file path to enhance with research
-- **`/technical_review`** → Call the /technical_review command with the plan file path
+- **`/deepen-plan`** → Call the /deepen-plan skill with the plan file path to enhance with research
+- **`/technical_review`** → Call the /technical_review skill with the plan file path
 - **Review and refine** → Load `document-review` skill.
-- **`/workflows-work`** → Call the /workflows:work command with the plan file path
+- **`/workflows-work`** → Call the /workflows-work skill with the plan file path
 - **`/workflows-work` on remote** → Run `/workflows-work docs/plans/<plan_filename>.md &` to start work in background for Claude Code web
 - **Create Issue** → See "Issue Creation" section below
 - **Other** (automatically provided) → Accept free text for rework or specific changes
@@ -522,7 +522,7 @@ Loop back to options after Simplify or Other changes until user selects `/workfl
 
 When user selects "Create Issue", detect their project tracker from CLAUDE.md:
 
-1. **Check for tracker preference** in user's CLAUDE.md (global or project):
+1. **Check for tracker preference** in user's AGENTS.md (global or project):
    - Look for `project_tracker: github` or `project_tracker: linear`
    - Or look for mentions of "GitHub Issues" or "Linear" in their workflow section
 
@@ -542,7 +542,7 @@ When user selects "Create Issue", detect their project tracker from CLAUDE.md:
 
 4. **If no tracker configured:**
    Ask user: "Which project tracker do you use? (GitHub/Linear/Other)"
-   - Suggest adding `project_tracker: github` or `project_tracker: linear` to their CLAUDE.md
+   - Suggest adding `project_tracker: github` or `project_tracker: linear` to their AGENTS.md
 
 5. **After creation:**
    - Display the issue URL

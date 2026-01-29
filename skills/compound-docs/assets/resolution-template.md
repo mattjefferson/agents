@@ -7,7 +7,7 @@ symptoms:
   - [Observable symptom 1 - specific error message or behavior]
   - [Observable symptom 2 - what user actually saw/experienced]
 root_cause: [missing_association|missing_include|missing_index|wrong_api|scope_issue|thread_violation|async_timing|memory_leak|config_error|logic_error|test_isolation|missing_validation|missing_permission]
-rails_version: [7.1.2 - optional]
+version: [7.1.2 - optional]
 resolution_type: [code_fix|migration|config_change|test_fix|dependency_update|environment_setup]
 severity: [critical|high|medium|low]
 tags: [keyword1, keyword2, keyword3]

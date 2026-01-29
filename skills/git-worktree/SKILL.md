@@ -204,7 +204,7 @@ bash skills/git-worktree/scripts/worktree-manager.sh cleanup
 
 ## Integration with Workflows
 
-### `/workflows:review`
+### `/workflows-review`
 
 Instead of always creating a worktree:
 
@@ -217,7 +217,7 @@ Instead of always creating a worktree:
    - no → proceed with PR diff on current branch
 ```
 
-### `/workflows:work`
+### `/workflows-work`
 
 Always offer choice:
 

@@ -50,7 +50,7 @@ Focus on $ARGUMENTS if provided, otherwise analyze broader context.
 
 Determine:
 - **What was wrong**: Quote specific sections from SKILL.md that are incorrect
-- **Discovery method**: Context7, error messages, trial and error, documentation lookup
+- **Discovery method**: Ref, Context7, error messages, trial and error, documentation lookup
 - **Root cause**: Outdated API, incorrect parameters, wrong endpoint, missing context
 - **Scope of impact**: Single section or multiple? Related files affected?
 - **Proposed fix**: Which files, which sections, before/after for each

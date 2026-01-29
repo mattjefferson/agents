@@ -1,4 +1,4 @@
 ---
-description: Research 
+summary: 'Research' 
 argument-hint: "[GitHub issue number]"
 ---

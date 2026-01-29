@@ -19,5 +19,3 @@ Include (in order):
 7) Risks/gotchas: any flaky tests, credentials, feature flags, or brittle areas.
 
 Output format: concise bullet list; include copy/paste tmux commands for any live sessions.
-
-Location: global prompt lives in `~/.codex/prompts/handoff.md`; this file mirrors it for easy edits.

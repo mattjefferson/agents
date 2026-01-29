@@ -1,11 +1,11 @@
 ---
 name: creating-agent-skills
-description: Expert guidance for creating, writing, and refining Claude Code Skills. Use when working with SKILL.md files, authoring new skills, improving existing skills, or understanding skill structure and best practices.
+description: Expert guidance for creating, writing, and refining Agent Skills. Use when working with SKILL.md files, authoring new skills, improving existing skills, or understanding skill structure and best practices.
 ---
 
 # Creating Agent Skills
 
-This skill teaches how to create effective Claude Code Skills following Anthropic's official specification.
+This skill teaches how to create effective Agent Skills following Anthropic's official specification.
 
 ## Core Principles
 
@@ -169,8 +169,7 @@ Output:
 Link from SKILL.md to detailed content:
 
 ```markdown
-For API reference, see [REFERENCE.md](REFERENCE.md).
-For form filling guide, see [FORMS.md](FORMS.md).
+For detailed API docs, see [reference.md](reference.md).
 ```
 
 Keep references **one level deep** from SKILL.md.

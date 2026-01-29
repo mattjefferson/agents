@@ -33,7 +33,7 @@ Create a new slash command in `.claude/commands/` for the requested task.
 
 **Integrations:**
 - AppSignal - logs and monitoring
-- Context7 - framework docs
+- Ref or Context7 - framework docs
 - Stripe, Todoist, Featurebase (if relevant)
 
 ## Best Practices
@@ -94,7 +94,7 @@ argument-hint: "[what arguments the command accepts]"
 ## Tips for Effective Commands
 
 - **Use $ARGUMENTS** placeholder for dynamic inputs
-- **Reference CLAUDE.md** patterns and conventions
+- **Reference AGENTS.md** patterns and conventions
 - **Include verification steps** - tests, linting, visual checks
 - **Be explicit about constraints** - don't modify X, use pattern Y
 - **Use XML tags** for structured prompts: `<task>`, `<requirements>`, `<constraints>`
@@ -129,7 +129,7 @@ Implement #$ARGUMENTS following these steps:
 
 ## Creating the Command File
 
-1. **Create the file** at `.claude/commands/[name].md` (subdirectories like `workflows/` supported)
+1. **Create the file** at `.claude/commands/[name].md` if you are called from Claude Code or `.codex/prompts/[name].md` if you are called from Codex
 2. **Start with YAML frontmatter** (see section above)
 3. **Structure the command** using the template above
 4. **Test the command** by using it with appropriate arguments

@@ -1,5 +1,5 @@
 ---
-name: changelog
+name: docs-changelog
 description: Create engaging changelogs for recent merges to main branch
 ---
 
@@ -68,7 +68,7 @@ Your final output should be formatted as follows:
 
 <change_log>
 
-# 🚀 [Daily/Weekly] Change Log: [Current Date]
+# 🚀 [Version] Change Log: [Current Date]
 
 ## 🚨 Breaking Changes (if any)
 
@@ -90,9 +90,6 @@ Your final output should be formatted as follows:
 
 [Mention contributors and their contributions]
 
-## 🎉 Fun Fact of the Day
-
-[Include a brief, work-related fun fact or joke]
 
 </change_log>
 

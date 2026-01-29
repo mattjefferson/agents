@@ -50,7 +50,7 @@ Options:
 2. **No, proceed with general patterns** - Use common patterns without specific API research
 
 If research requested:
-- Use Context7 MCP to fetch current library documentation
+- Use Use Ref (1st) or Context7 (in Ref is unavailable) MCP to fetch current library documentation
 - Or use WebSearch for recent API documentation
 - Focus on 2024-2026 sources
 - Store findings for use in content generation

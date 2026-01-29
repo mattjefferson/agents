@@ -1,6 +1,6 @@
 # YAML Frontmatter Schema
 
-**See `.claude/skills/codify-docs/schema.yaml` for the complete schema specification.**
+**See `../schema.yaml` for the complete schema specification.**
 
 ## Required Fields
 
@@ -15,7 +15,7 @@
 
 ## Optional Fields
 
-- **rails_version** (string): Rails version in X.Y.Z format
+- **version** (string): version in X.Y.Z format
 - **tags** (array): Searchable keywords (lowercase, hyphen-separated)
 
 ## Validation Rules
@@ -24,7 +24,7 @@
 2. Enum fields must match allowed values exactly (case-sensitive)
 3. symptoms must be YAML array with 1-5 items
 4. date must match YYYY-MM-DD format
-5. rails_version (if provided) must match X.Y.Z format
+5. version (if provided) must match X.Y.Z format
 6. tags should be lowercase, hyphen-separated
 
 ## Example
@@ -39,7 +39,7 @@ symptoms:
   - "N+1 query when loading email threads"
   - "Brief generation taking >5 seconds"
 root_cause: missing_include
-rails_version: 7.1.2
+version: 7.1.2
 resolution_type: code_fix
 severity: high
 tags: [n-plus-one, eager-loading, performance]

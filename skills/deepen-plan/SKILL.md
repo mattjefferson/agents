@@ -283,17 +283,13 @@ Find:
 Return concrete, actionable recommendations."
 ```
 
-**Also use Context7 MCP for framework documentation:**
+**Also use Ref or Context7 MCP for framework documentation:**
 
-For any technologies/frameworks mentioned in the plan, query Context7:
-```
-mcp__plugin_compound-engineering_context7__resolve-library-id: Find library ID for [framework]
-mcp__plugin_compound-engineering_context7__query-docs: Query documentation for specific patterns
-```
+For any technologies/frameworks mentioned in the plan, query Ref (1st) or Context7 (if Ref is unavailable).
 
 **Use WebSearch for current best practices:**
 
-Search for recent (2024-2026) articles, blog posts, and documentation on topics in the plan.
+Search for recent (2025-2026) articles, blog posts, and documentation on topics in the plan.
 
 ### 5. Discover and Run ALL Review Agents
 
@@ -310,32 +306,21 @@ find .claude/agents -name "*.md" 2>/dev/null
 # 2. User's global agents (~/.claude/)
 find ~/.claude/agents -name "*.md" 2>/dev/null
 
-# 3. compound-engineering plugin agents (all subdirectories)
-find ~/.claude/plugins/cache/*/compound-engineering/*/agents -name "*.md" 2>/dev/null
-
-# 4. ALL other installed plugins - check every plugin for agents
+# 3. ALL other installed plugins - check every plugin for agents
 find ~/.claude/plugins/cache -path "*/agents/*.md" 2>/dev/null
 
-# 5. Check installed_plugins.json to find all plugin locations
+# 4. Check installed_plugins.json to find all plugin locations
 cat ~/.claude/plugins/installed_plugins.json
 
-# 6. For local plugins (isLocal: true), check their source directories
+# 5. For local plugins (isLocal: true), check their source directories
 # Parse installed_plugins.json and find local plugin paths
 ```
 
 **Important:** Check EVERY source. Include agents from:
 - Project `.claude/agents/`
 - User's `~/.claude/agents/`
-- compound-engineering plugin (but SKIP workflow/ agents - only use review/, research/, design/, docs/)
 - ALL other installed plugins (agent-sdk-dev, frontend-design, etc.)
 - Any local plugins
-
-**For compound-engineering plugin specifically:**
-- USE: `agents/review/*` (all reviewers)
-- USE: `agents/research/*` (all researchers)
-- USE: `agents/design/*` (design agents)
-- USE: `agents/docs/*` (documentation agents)
-- SKIP: `agents/workflow/*` (these are workflow orchestrators, not reviewers)
 
 **Step 2: For each discovered agent, read its description**
 
@@ -373,7 +358,7 @@ Wait for ALL parallel agents to complete - skills, research agents, review agent
 2. **Learnings/Solutions sub-agents** - Relevant documented learnings from /workflows:compound
 3. **Research agents** - Best practices, documentation, real-world examples
 4. **Review agents** - All feedback from every reviewer (architecture, security, performance, simplicity, etc.)
-5. **Context7 queries** - Framework documentation and patterns
+5. **Ref (1st) or Context7 (if Ref is unavailable) queries** - Framework documentation and patterns
 6. **Web searches** - Current best practices and articles
 
 **For each agent's findings, extract:**

@@ -16,6 +16,8 @@ Skills contain claims about external things: APIs, CLI tools, frameworks, servic
 
 ```bash
 ls ~/.claude/skills/
+or
+ls ~/.codex/skills/
 ```
 
 Present numbered list, ask: "Which skill should I verify for accuracy?"
@@ -25,6 +27,7 @@ Present numbered list, ask: "Which skill should I verify for accuracy?"
 Read the entire skill (SKILL.md + workflows/ + references/):
 ```bash
 cat ~/.claude/skills/{skill-name}/SKILL.md
+cat ~/codex/skills/{skill-name}/SKILL.md
 cat ~/.claude/skills/{skill-name}/workflows/*.md 2>/dev/null
 cat ~/.claude/skills/{skill-name}/references/*.md 2>/dev/null
 ```
@@ -33,10 +36,10 @@ Categorize by primary dependency type:
 
 | Type | Examples | Verification Method |
 |------|----------|---------------------|
-| **API/Service** | manage-stripe, manage-gohighlevel | Context7 + WebSearch |
+| **API/Service** | manage-stripe, manage-gohighlevel | Ref (1st) or Context7 (if Ref is unavailable) + WebSearch |
 | **CLI Tools** | build-macos-apps (xcodebuild, swift) | Run commands |
-| **Framework** | build-iphone-apps (SwiftUI, UIKit) | Context7 for docs |
-| **Integration** | setup-stripe-payments | WebFetch + Context7 |
+| **Framework** | build-iphone-apps (SwiftUI, UIKit) | Ref (1st) or Context7 (if Ref is unavailable) for docs |
+| **Integration** | setup-stripe-payments | WebFetch + Ref (1st) or Context7 (if Ref is unavailable) |
 | **Pure Process** | create-agent-skills | No external deps |
 
 Report: "This skill is primarily [type]-based. I'll verify using [method]."
@@ -82,11 +85,7 @@ which {tool-name}
 ```
 
 ### For API/Service Skills
-Use Context7 to fetch current documentation:
-```
-mcp__context7__resolve-library-id: {service-name}
-mcp__context7__get-library-docs: {library-id}, topic: {relevant-topic}
-```
+Use Ref (1st) or Context7 (if Ref is unavailable) MCP to fetch current documentation.
 
 Compare skill's documented patterns against current docs:
 - Are endpoints still valid?
@@ -94,11 +93,7 @@ Compare skill's documented patterns against current docs:
 - Are there deprecated methods being used?
 
 ### For Framework Skills
-Use Context7:
-```
-mcp__context7__resolve-library-id: {framework-name}
-mcp__context7__get-library-docs: {library-id}, topic: {specific-api}
-```
+Use Ref (1st) or Context7 (if Ref is unavailable) MCP to fetch current documentation.
 
 Check:
 - Are documented APIs still current?
@@ -113,7 +108,7 @@ WebSearch for recent changes:
 "[service name] deprecated endpoints"
 ```
 
-Then Context7 for current SDK patterns.
+Then Ref (1st) or Context7 (if Ref is unavailable) MCP for current SDK patterns.
 
 ### For Services with Status Pages
 WebFetch official docs/changelog if available.
@@ -181,11 +176,8 @@ Based on skill type, recommend:
 which {tool} && {tool} --version
 ```
 
-**Context7 pattern for any library:**
-```
-1. resolve-library-id: "{library-name}"
-2. get-library-docs: "{id}", topic: "{specific-feature}"
-```
+**Ref (1st) or Context7 (if Ref is unavailable) pattern for any library:**
+
 
 **WebSearch patterns:**
 - Breaking changes: "{service} breaking changes 2026"

@@ -50,47 +50,46 @@ Ensure that the code is ready for analysis (either in worktree or on current bra
 
 </task_list>
 
-#### Parallel Agents to review the PR:
+#### Parallel skills to review the PR:
 
 <parallel_tasks>
 
-Run ALL or most of these agents at the same time:
+Run ALL or most of these skills at the same time:
 
 1. Task git-history-analyzer(PR content)
 2. Task dependency-detective(PR content)
 3. Task pattern-recognition-specialist(PR content)
 4. Task architecture-strategist(PR content)
 5. Task security-sentinel(PR content)
-6. Task performance-oracle(PR content)
-7. Task devops-harmony-analyst(PR content)
-8. Task data-integrity-guardian(PR content)
-9. Task agent-native-reviewer(PR content) - Verify new features are agent-accessible
+6. Task performance-wiz(PR content)
+7. Task data-integrity-guardian(PR content)
+8. Task agent-native-reviewer(PR content) - Verify new features are agent-accessible
 
 </parallel_tasks>
 
-#### Conditional Agents (Run if applicable):
+#### Conditional Skills (Run if applicable):
 
-<conditional_agents>
+<conditional_skills>
 
-These agents are run ONLY when the PR matches specific criteria. Check the PR files list to determine if they apply:
+These skills are run ONLY when the PR matches specific criteria. Check the PR files list to determine if they apply:
 
 **If PR contains database migrations or data backfills:**
 
 14. Task data-migration-expert(PR content) - Validates ID mappings match production, checks for swapped values, verifies rollback safety
 15. Task deployment-verification-agent(PR content) - Creates Go/No-Go deployment checklist with SQL verification queries
 
-**When to run migration agents:**
+**When to run migration skills:**
 - PR includes files matching `db/migrate/*.rb`
 - PR modifies columns that store IDs, enums, or mappings
 - PR includes data backfill scripts or rake tasks
 - PR changes how data is read/written (e.g., changing from FK to string column)
 - PR title/body mentions: migration, backfill, data transformation, ID mapping
 
-**What these agents check:**
+**What these skills check:**
 - `data-migration-expert`: Verifies hard-coded mappings match production reality (prevents swapped IDs), checks for orphaned associations, validates dual-write patterns
 - `deployment-verification-agent`: Produces executable pre/post-deploy checklists with SQL queries, rollback procedures, and monitoring plans
 
-</conditional_agents>
+</conditional_skills>
 
 ### 4. Ultra-Thinking Deep Dive Phases
 
@@ -365,11 +364,11 @@ After creating all todo files, present comprehensive summary:
 
 ### Review Agents Used:
 
-- kieran-rails-reviewer
 - security-sentinel
-- performance-oracle
+- performance-wiz
 - architecture-strategist
 - agent-native-reviewer
+- code-simplicity-reviewer
 - [other agents]
 
 ### Next Steps:
@@ -476,7 +475,7 @@ Task general-purpose("Run /test-browser for PR #[number]. Test all affected page
 
 The subagent will:
 1. Identify pages affected by the PR
-2. Navigate to each page and capture snapshots (using Playwright MCP or agent-browser CLI)
+2. Navigate to each page and capture snapshots (using agent-browser CLI)
 3. Check for console errors
 4. Test critical interactions
 5. Pause for human verification on OAuth/email/payment flows

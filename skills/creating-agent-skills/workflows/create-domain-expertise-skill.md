@@ -134,11 +134,7 @@ For EACH major library/tool/pattern found:
 
 ### Documentation Sources
 
-Use Context7 MCP when available:
-```
-mcp__context7__resolve-library-id: {library-name}
-mcp__context7__get-library-docs: {library-id}
-```
+Use Ref (1st) or Context7 (if Ref is unavailable) MCP when available.
 
 Focus on official docs, not tutorials.
 

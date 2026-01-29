@@ -1,10 +1,8 @@
 ---
 summary: 'Idea Wizard'
 read_when:
-  - Creating a /wizard prompt or refining wizard format.
+  - Creating a /idea-wizard prompt or refining wizard format.
 ---
-# /wizard
-
 Purpose: Come up with your very best ideas for improving this project
 
 Steps:

@@ -146,16 +146,7 @@ This command takes a work document (plan, specification, or todo file) and execu
    - Fix failures immediately
    - Add new tests for new functionality
 
-5. **Figma Design Sync** (if applicable)
-
-   For UI work with Figma designs:
-
-   - Implement components following design specs
-   - Use figma-design-sync agent iteratively to compare
-   - Fix visual differences identified
-   - Repeat until implementation matches design
-
-6. **Track Progress**
+5. **Track Progress**
    - Keep TodoWrite updated as you complete tasks
    - Note any blockers or unexpected discoveries
    - Create new tasks if scope expands
@@ -171,7 +162,7 @@ This command takes a work document (plan, specification, or todo file) and execu
    # Run full test suite (use project's test command)
    # Examples: bin/rails test, npm test, pytest, go test, etc.
 
-   # Run linting (per CLAUDE.md)
+   # Run linting (per AGENTS.md)
    # Use linting-agent before pushing to origin
    ```
 
@@ -180,16 +171,14 @@ This command takes a work document (plan, specification, or todo file) and execu
    Use for complex, risky, or large changes:
 
    - **code-simplicity-reviewer**: Check for unnecessary complexity
-   - **kieran-rails-reviewer**: Verify Rails conventions (Rails projects)
-   - **performance-oracle**: Check for performance issues
+   - **performance-wiz**: Check for performance issues
    - **security-sentinel**: Scan for security vulnerabilities
-   - **test-reviewer**: Review test quality (projects with comprehensive test coverage)
 
    Run reviewers in parallel with Task tool:
 
    ```
    Task(code-simplicity-reviewer): "Review changes for simplicity"
-   Task(kieran-rails-reviewer): "Check Rails conventions"
+   Task(security-sentinel): "Check for security issues"
    ```
 
    Present findings to user and address critical issues.
