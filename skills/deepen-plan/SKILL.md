@@ -10,7 +10,7 @@ argument-hint: "[path to plan file]"
 
 **Note: The current year is 2026.** Use this when searching for recent documentation and best practices.
 
-This command takes an existing plan (from `/workflows:plan`) and enhances each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
+This command takes an existing plan (from `/workflows-plan`) and enhances each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
 - Best practices and industry patterns
 - Performance optimizations
 - UI/UX improvements (if applicable)
@@ -145,13 +145,13 @@ Task general-purpose: "Use the security-patterns skill at ~/.claude/skills/secur
 ### 3. Discover and Apply Learnings/Solutions
 
 <thinking>
-Check for documented learnings from /workflows:compound. These are solved problems stored as markdown files. Spawn a sub-agent for each learning to check if it's relevant.
+Check for documented learnings from /workflows-compound. These are solved problems stored as markdown files. Spawn a sub-agent for each learning to check if it's relevant.
 </thinking>
 
 **LEARNINGS LOCATION - Check these exact folders:**
 
 ```
-docs/solutions/           <-- PRIMARY: Project-level learnings (created by /workflows:compound)
+docs/solutions/           <-- PRIMARY: Project-level learnings (created by /workflows-compound)
 ├── performance-issues/
 │   └── *.md
 ├── debugging-patterns/
@@ -486,7 +486,7 @@ Based on selection:
 Use React Query for data fetching with optimistic updates.
 ```
 
-**After (from /workflows:deepen-plan):**
+**After (from /deepen-plan):**
 ```markdown
 ## Technical Approach
 

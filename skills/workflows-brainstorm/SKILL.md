@@ -113,7 +113,7 @@ Key decisions:
 - [Decision 1]
 - [Decision 2]
 
-Next: Run `/workflows:plan` when ready to implement.
+Next: Run `/workflows-plan` when ready to implement.
 ```
 
 ## Important Guidelines

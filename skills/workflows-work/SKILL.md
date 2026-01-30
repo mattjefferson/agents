@@ -323,9 +323,9 @@ Before creating PR, verify:
 - [ ] PR description includes summary, testing notes, and screenshots
 - [ ] PR description includes Compound Engineered badge
 
-## When to Use Reviewer Agents
+## When to Use Reviewer Skills
 
-**Don't use by default.** Use reviewer agents only when:
+**Don't use by default.** Use reviewer skills only when:
 
 - Large refactor affecting many files (10+)
 - Security-sensitive changes (authentication, permissions, data access)
@@ -343,4 +343,4 @@ For most features: tests + linting + following patterns is sufficient.
 - **Testing at the end** - Test continuously or suffer later
 - **Forgetting TodoWrite** - Track progress or lose track of what's done
 - **80% done syndrome** - Finish the feature, don't move on early
-- **Over-reviewing simple changes** - Save reviewer agents for complex work
+- **Over-reviewing simple changes** - Save reviewer skills for complex work

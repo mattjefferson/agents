@@ -50,24 +50,24 @@ Ensure that the code is ready for analysis (either in worktree or on current bra
 
 </task_list>
 
-#### Parallel skills to review the PR:
+#### Parallel subagents to review the PR:
 
 <parallel_tasks>
 
-Run ALL or most of these skills at the same time:
+Run ALL or most of these skills as subagents at the same time:
 
-1. Task git-history-analyzer(PR content)
-2. Task dependency-detective(PR content)
-3. Task pattern-recognition-specialist(PR content)
-4. Task architecture-strategist(PR content)
-5. Task security-sentinel(PR content)
-6. Task performance-wiz(PR content)
-7. Task data-integrity-guardian(PR content)
-8. Task agent-native-reviewer(PR content) - Verify new features are agent-accessible
+1. git-history-analyzer(PR content)
+2. dependency-detective(PR content)
+3. pattern-recognition-specialist(PR content)
+4. architecture-strategist(PR content)
+5. security-sentinel(PR content)
+6. performance-wiz(PR content)
+7. data-integrity-guardian(PR content)
+8. agent-native-reviewer(PR content) - Verify new features are agent-accessible
 
 </parallel_tasks>
 
-#### Conditional Skills (Run if applicable):
+#### Conditional skills (Run if applicable):
 
 <conditional_skills>
 
@@ -75,8 +75,8 @@ These skills are run ONLY when the PR matches specific criteria. Check the PR fi
 
 **If PR contains database migrations or data backfills:**
 
-14. Task data-migration-expert(PR content) - Validates ID mappings match production, checks for swapped values, verifies rollback safety
-15. Task deployment-verification-agent(PR content) - Creates Go/No-Go deployment checklist with SQL verification queries
+14. data-migration-expert(PR content) - Validates ID mappings match production, checks for swapped values, verifies rollback safety
+15. deployment-verification-agent(PR content) - Creates Go/No-Go deployment checklist with SQL verification queries
 
 **When to run migration skills:**
 - PR includes files matching `db/migrate/*.rb`
@@ -154,7 +154,9 @@ Complete system context map with component interactions
 - [ ] **Resource Exhaustion**: Memory, disk, connections
 - [ ] **Security Attacks**: Injection, overflow, DoS
 - [ ] **Data Corruption**: Partial writes, inconsistency
-- [ ] **Cascading Failures**: Downstream service issues </scenario_checklist>
+- [ ] **Cascading Failures**: Downstream service issues 
+
+</scenario_checklist>
 
 ### 6. Multi-Angle Review Perspectives
 
@@ -211,7 +213,7 @@ Remove duplicates, prioritize by severity and impact.
 
 </synthesis_tasks>
 
-#### Step 2: Create Todo Files Using file-todos Skill
+#### Step 2: Create Todo Files Using file-todos 
 
 <critical_instruction> Use the file-todos skill to create todo files for ALL findings immediately. Do NOT present findings one-by-one asking for user approval. Create all todo files in parallel using the skill, then summarize results to user. </critical_instruction>
 
@@ -227,7 +229,7 @@ Remove duplicates, prioritize by severity and impact.
 **Option B: Sub-Agents in Parallel (Recommended for Scale)** For large PRs with 15+ findings, use sub-agents to create finding files in parallel:
 
 ```bash
-# Launch multiple finding-creator agents in parallel
+# Launch multiple file-todos in parallel
 Task() - Create todos for first finding
 Task() - Create todos for second finding
 Task() - Create todos for third finding
