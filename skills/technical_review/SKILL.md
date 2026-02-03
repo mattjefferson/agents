@@ -11,7 +11,6 @@ Use subagents to run the following skills
 
 1. architecture-strategist
 2. code-simplicity-reviewer
-3. security-sentinel
+3. security-review
 4. karpathy-guidelines
-
 

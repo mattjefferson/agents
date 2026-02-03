@@ -164,6 +164,6 @@ Provide your analysis as:
 
 This analysis complements:
 - **architecture-strategist**: You find the dependencies, they assess the design
-- **security-sentinel**: Flag new dependencies for security review
+- **security-review**: Flag new dependencies for security review
 - **pattern-recognition-specialist**: Identify dependency anti-patterns
 - **git-history-analyzer**: Understand why dependencies evolved

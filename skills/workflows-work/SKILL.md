@@ -172,13 +172,13 @@ This command takes a work document (plan, specification, or task file) and execu
 
    - **code-simplicity-reviewer**: Check for unnecessary complexity
    - **performance-wiz**: Check for performance issues
-   - **security-sentinel**: Scan for security vulnerabilities
+   - **security-review**: Scan for security vulnerabilities
 
    Run reviewers in parallel with Task tool:
 
    ```
    Task(code-simplicity-reviewer): "Review changes for simplicity"
-   Task(security-sentinel): "Check for security issues"
+   Task(security-review): "Check for security issues"
    ```
 
    Present findings to user and address critical issues.

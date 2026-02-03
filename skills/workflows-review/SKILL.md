@@ -71,7 +71,7 @@ Run ALL or most of these as subagents in parallel:
 2. dependency-detective(PR content)
 3. pattern-recognition-specialist(PR content)
 4. architecture-strategist(PR content)
-5. security-sentinel(PR content)
+5. security-review(PR content)
 6. performance-wiz(PR content)
 7. data-integrity-guardian(PR content)
 8. agent-native-reviewer(PR content) - Verify new features are agent-accessible
@@ -378,7 +378,7 @@ After creating all task files, present comprehensive summary:
 
 ### Review Agents Used:
 
-- security-sentinel
+- security-review
 - performance-wiz
 - architecture-strategist
 - agent-native-reviewer

@@ -67,7 +67,7 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
    Based on problem type detected, automatically invoke applicable agents:
    - **performance_issue** → `performance-wiz`
    - **dependency_issue** → `dependency-detective`
-   - **security_issue** → `security-sentinel`
+  - **security_issue** → `security-review`
    - **database_issue** → `data-integrity-guardian`
    - **test_failure** → `test-quality-reviewer`
    - Any code-heavy issue → `typescript-reviewer` + `code-simplicity-reviewer`
@@ -184,7 +184,7 @@ Based on problem type, these agents can enhance documentation:
 
 ### Specific Domain Experts
 - **performance-wiz**: Analyzes performance_issue category solutions
-- **security-sentinel**: Reviews security_issue solutions for vulnerabilities
+- **security-review**: Reviews security_issue solutions for vulnerabilities
 - **test-quality-reviewer**: Creates test cases for prevention strategies
 - **data-integrity-guardian**: Reviews database_issue migrations and queries
 
