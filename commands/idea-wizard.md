@@ -1,5 +1,5 @@
 ---
-summary: 'Idea Wizard'
+description: 'Idea Wizard'
 read_when:
   - Creating a /idea-wizard prompt or refining wizard format.
 ---

@@ -1,15 +1,14 @@
 ---
 name: triage
-description: Triage and categorize findings for the CLI todo system
+description: Triage and categorize findings for the task system
 ---
 
 ## Arguments
 [findings list or source type]
 
-- First set the /model to Haiku
-- Then read all pending todos in the todos/ directory
+- Read all pending tasks in the tasks/ directory
 
-Present all findings, decisions, or issues here one by one for triage. The goal is to go through each item and decide whether to add it to the CLI todo system.
+Present all findings, decisions, or issues here one by one for triage. The goal is to go through each item and decide whether to add it to the CLI task system.
 
 **IMPORTANT: DO NOT CODE ANYTHING DURING TRIAGE!**
 
@@ -48,8 +47,8 @@ Proposed Solution:
 Estimated Effort: [Small (< 2 hours) / Medium (2-8 hours) / Large (> 8 hours)]
 
 ---
-Do you want to add this to the todo list?
-1. yes - create todo file
+Do you want to add this to the task list?
+1. yes - create task file
 2. next - skip this item
 3. custom - modify before creating
 ```
@@ -58,15 +57,15 @@ Do you want to add this to the todo list?
 
 **When user says "yes":**
 
-1. **Update existing todo file** (if it exists) or **Create new filename:**
+1. **Update existing task file** (if it exists) or **Create new filename:**
 
-   If todo already exists (from code review):
+   If task already exists (from code review):
 
    - Rename file from `{id}-pending-{priority}-{desc}.md` → `{id}-ready-{priority}-{desc}.md`
    - Update YAML frontmatter: `status: pending` → `status: ready`
    - Keep issue_id, priority, and description unchanged
 
-   If creating new todo:
+   If creating new task:
 
    ```
    {next_id}-ready-{priority}-{brief-description}.md
@@ -150,7 +149,7 @@ Do you want to add this to the todo list?
 
 **When user says "next":**
 
-- **Delete the todo file** - Remove it from todos/ directory since it's not relevant
+- **Delete the task file** - Remove it from tasks/ directory since it's not relevant
 - Skip to the next item
 - Track skipped items for summary
 
@@ -174,43 +173,43 @@ After all items processed:
 ````markdown
 ## Triage Complete
 
-**Total Items:** [X] **Todos Approved (ready):** [Y] **Skipped:** [Z]
+**Total Items:** [X] **Tasks Approved (ready):** [Y] **Skipped:** [Z]
 
-### Approved Todos (Ready for Work):
+### Approved Tasks (Ready for Work):
 
 - `042-ready-p1-transaction-boundaries.md` - Transaction boundary issue
 - `043-ready-p2-cache-optimization.md` - Cache performance improvement ...
 
 ### Skipped Items (Deleted):
 
-- Item #5: [reason] - Removed from todos/
-- Item #12: [reason] - Removed from todos/
+- Item #5: [reason] - Removed from tasks/
+- Item #12: [reason] - Removed from tasks/
 
 ### Summary of Changes Made:
 
 During triage, the following status updates occurred:
 
 - **Pending → Ready:** Filenames and frontmatter updated to reflect approved status
-- **Deleted:** Todo files for skipped findings removed from todos/ directory
+- **Deleted:** Task files for skipped findings removed from tasks/ directory
 - Each approved file now has `status: ready` in YAML frontmatter
 
 ### Next Steps:
 
-1. View approved todos ready for work:
+1. View approved tasks ready for work:
    ```bash
-   ls todos/*-ready-*.md
+   ls tasks/*-ready-*.md
    ```
 ````
 
 2. Start work on approved items:
 
    ```bash
-   /resolve_todo_parallel  # Work on multiple approved items efficiently
+   /resolve_task_parallel  # Work on multiple approved items efficiently
    ```
 
 3. Or pick individual items to work on
 
-4. As you work, update todo status:
+4. As you work, update task status:
    - Ready → In Progress (in your local context as you work)
    - In Progress → Complete (rename file: ready → complete, update frontmatter)
 
@@ -254,9 +253,9 @@ Estimated Effort: Small (30 minutes)
 
 ---
 
-Do you want to add this to the todo list?
+Do you want to add this to the task list?
 
-1. yes - create todo file
+1. yes - create task file
 2. next - skip this item
 3. custom - modify before creating
 
@@ -273,13 +272,13 @@ Do you want to add this to the todo list?
 4. Confirm: "✅ Approved: `{filename}` (Issue #{issue_id}) - Status: **ready**"
 
 **When "next" is selected:**
-1. Delete the todo file from todos/ directory
+1. Delete the task file from tasks/ directory
 2. Skip to next item
 3. No file remains in the system
 
 ### Progress Tracking
 
-Every time you present a todo as a header, include:
+Every time you present a task as a header, include:
 - **Progress:** X/Y completed (e.g., "3/10 completed")
 - **Estimated time remaining:** Based on how quickly you're progressing
 - **Pacing:** Monitor time per finding and adjust estimate accordingly
@@ -295,10 +294,10 @@ Progress: 3/10 completed | Estimated time: ~2 minutes remaining
 
 - ✅ Present findings
 - ✅ Make yes/next/custom decisions
-- ✅ Update todo files (rename, frontmatter, work log)
+- ✅ Update task files (rename, frontmatter, work log)
 - ❌ Do NOT implement fixes or write code
 - ❌ Do NOT add detailed implementation details
-- ❌ That's for /resolve_todo_parallel phase
+- ❌ That's for /resolve_task_parallel phase
 ```
 
 When done give these options
@@ -306,7 +305,7 @@ When done give these options
 ```markdown
 What would you like to do next?
 
-1. run /resolve_todo_parallel to resolve the todos
-2. commit the todos
+1. run /resolve_task_parallel to resolve the tasks
+2. commit the tasks
 3. nothing, go chill
 ```

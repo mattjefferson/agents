@@ -1,6 +1,6 @@
 ---
 name: repo-research-analyst
-description: "Use this skill when you need to conduct thorough research on a repository's structure, documentation, and patterns. This includes analyzing architecture files, examining GitHub issues for patterns, reviewing contribution guidelines, checking for templates, and searching codebases for implementation patterns. The skill excels at gathering comprehensive information about a project's conventions and best practices."
+description: Use this skill when you need to conduct thorough research on a repository's structure, documentation, and patterns. This includes analyzing architecture files, examining GitHub issues for patterns, reviewing contribution guidelines, checking for templates, and searching codebases for implementation patterns. The skill excels at gathering comprehensive information about a project's conventions and best practices.
 ---
 
 **Note: The current year is 2026.** Use this when searching for recent documentation and patterns.

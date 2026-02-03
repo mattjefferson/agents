@@ -1,6 +1,6 @@
 ---
 name: deepen-plan
-description: Enhance a plan with parallel research agents for each section to add depth, best practices, and implementation details
+description: Enhance a plan with parallel research subagents for each section to add depth, best practices, and implementation details
 argument-hint: "[path to plan file]"
 ---
 
@@ -10,7 +10,7 @@ argument-hint: "[path to plan file]"
 
 **Note: The current year is 2026.** Use this when searching for recent documentation and best practices.
 
-This command takes an existing plan (from `/workflows-plan`) and enhances each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
+This command takes an existing plan (from `/workflows-plan`) and enhances each section with parallel research subagents. Each major element gets its own dedicated research sub-agent to find:
 - Best practices and industry patterns
 - Performance optimizations
 - UI/UX improvements (if applicable)
@@ -80,7 +80,7 @@ find ~/.claude/plugins/cache -type d -name "skills" 2>/dev/null
 cat ~/.claude/plugins/installed_plugins.json
 ```
 
-**Important:** Check EVERY source. Don't assume compound-engineering is the only plugin. Use skills from ANY installed plugin that's relevant.
+**Important:** Check EVERY source. Don't assume there is the only plugin. Use skills from ANY installed plugin that's relevant.
 
 **Step 2: For each discovered skill, read its SKILL.md to understand what it does**
 
@@ -96,9 +96,9 @@ For each skill discovered:
 - Check if any plan sections match the skill's domain
 - If there's a match, spawn a sub-agent to apply that skill's knowledge
 
-**Step 4: Spawn a sub-agent for EVERY matched skill**
+**Step 4: Spawn a subagent in paralle for EVERY matched skill**
 
-**CRITICAL: For EACH skill that matches, spawn a separate sub-agent and instruct it to USE that skill.**
+**CRITICAL: For EACH skill that matches, spawn a parallel sub-agent and instruct it to USE that skill.**
 
 For each matched skill:
 ```
@@ -117,13 +117,13 @@ YOUR JOB: Use this skill on the plan.
 The skill tells you what to do - follow it. Execute the skill completely."
 ```
 
-**Spawn ALL skill sub-agents in PARALLEL:**
+**Spawn ALL subagents in PARALLEL:**
 - 1 sub-agent per matched skill
-- Each sub-agent reads and uses its assigned skill
+- Each subagent reads and uses its assigned skill
 - All run simultaneously
-- 10, 20, 30 skill sub-agents is fine
+- 10, 20, 30 skill sub-gents is fine
 
-**Each sub-agent:**
+**Each subagent:**
 1. Reads its skill's SKILL.md
 2. Follows the skill's workflow/instructions
 3. Applies the skill to the plan
@@ -131,8 +131,6 @@ The skill tells you what to do - follow it. Execute the skill completely."
 
 **Example spawns:**
 ```
-Task general-purpose: "Use the dhh-rails-style skill at ~/.claude/plugins/.../dhh-rails-style. Read SKILL.md and apply it to: [Rails sections of plan]"
-
 Task general-purpose: "Use the frontend-design skill at ~/.claude/plugins/.../frontend-design. Read SKILL.md and apply it to: [UI sections of plan]"
 
 Task general-purpose: "Use the agent-native-architecture skill at ~/.claude/plugins/.../agent-native-architecture. Read SKILL.md and apply it to: [agent/tool sections of plan]"
@@ -140,7 +138,7 @@ Task general-purpose: "Use the agent-native-architecture skill at ~/.claude/plug
 Task general-purpose: "Use the security-patterns skill at ~/.claude/skills/security-patterns. Read SKILL.md and apply it to: [full plan]"
 ```
 
-**No limit on skill sub-agents. Spawn one for every skill that could possibly be relevant.**
+**No limit on skill subagents. Spawn one for every skill that could possibly be relevant.**
 
 ### 3. Discover and Apply Learnings/Solutions
 
@@ -175,8 +173,7 @@ Run these commands to get every learning file:
 find docs/solutions -name "*.md" -type f 2>/dev/null
 
 # If docs/solutions doesn't exist, check alternate locations:
-find .claude/docs -name "*.md" -type f 2>/dev/null
-find ~/.claude/docs -name "*.md" -type f 2>/dev/null
+find ~/projects/agent-scripts/docs -name "*.md" -type f 2>/dev/null
 ```
 
 **Step 2: Read frontmatter of each learning to filter**
@@ -201,7 +198,7 @@ root_cause: "Missing includes on association"
 head -20 docs/solutions/**/*.md
 ```
 
-**Step 3: Filter - only spawn sub-agents for LIKELY relevant learnings**
+**Step 3: Filter - only spawn subagents for LIKELY relevant learnings**
 
 Compare each learning's frontmatter against the plan:
 - `tags:` - Do any tags match technologies/patterns in the plan?
@@ -214,12 +211,12 @@ Compare each learning's frontmatter against the plan:
 - Plan is Python → skip `rails-specific/` learnings
 - Plan has no auth → skip `authentication-issues/` learnings
 
-**SPAWN sub-agents for learnings that MIGHT apply:**
+**SPAWN subagents for learnings that MIGHT apply:**
 - Any tag overlap with plan technologies
 - Same category as plan domain
 - Similar patterns or concerns
 
-**Step 4: Spawn sub-agents for filtered learnings**
+**Step 4: Spawn subagents for filtered learnings**
 
 For each learning that passes the filter:
 
@@ -261,14 +258,14 @@ docs/solutions/frontend-issues/stimulus-race-condition.md    # plan is API, not 
 docs/solutions/authentication-issues/jwt-expiry.md           # plan has no auth
 ```
 
-**Spawn sub-agents in PARALLEL for all filtered learnings.**
+**Spawn subagents in PARALLEL for all filtered learnings.**
 
 **These learnings are institutional knowledge - applying them prevents repeating past mistakes.**
 
-### 4. Launch Per-Section Research Agents
+### 4. Launch Per-Section Research Subagents
 
 <thinking>
-For each major section in the plan, spawn dedicated sub-agents to research improvements. Use the Explore agent type for open-ended research.
+For each major section in the plan, spawn dedicated subgents to research improvements. Use the Explore agent type for open-ended research.
 </thinking>
 
 **For each identified section, launch parallel research:**
@@ -291,10 +288,10 @@ For any technologies/frameworks mentioned in the plan, query Ref (1st) or Contex
 
 Search for recent (2025-2026) articles, blog posts, and documentation on topics in the plan.
 
-### 5. Discover and Run ALL Review Agents
+### 5. Discover and Run ALL Review SubAgents (Only if you are running from Claude Code, CODEX skip 5. )
 
 <thinking>
-Dynamically discover every available agent and run them ALL against the plan. Don't filter, don't skip, don't assume relevance. 40+ parallel agents is fine. Use everything available.
+Dynamically discover every available agent and run them ALL against the plan. Don't filter, don't skip, don't assume relevance. 40+ parallel sub-agents is fine. Use everything available.
 </thinking>
 
 **Step 1: Discover ALL available agents from ALL sources**
@@ -335,29 +332,29 @@ Task [agent-name]: "Review this plan using your expertise. Apply all your checks
 ```
 
 **CRITICAL RULES:**
-- Do NOT filter agents by "relevance" - run them ALL
-- Do NOT skip agents because they "might not apply" - let them decide
-- Launch ALL agents in a SINGLE message with multiple Task tool calls
-- 20, 30, 40 parallel agents is fine - use everything
+- Do NOT filter subagents by "relevance" - run them ALL
+- Do NOT skip subagents because they "might not apply" - let them decide
+- Launch ALL subagents in a SINGLE message with multiple Task tool calls
+- 20, 30, 40 parallel subagents is fine - use everything
 - Each agent may catch something others miss
 - The goal is MAXIMUM coverage, not efficiency
 
-**Step 4: Also discover and run research agents**
+**Step 4: Also discover and run research skill subagents**
 
-Research agents (like `best-practices-researcher`, `framework-docs-researcher`, `git-history-analyzer`, `repo-research-analyst`) should also be run for relevant plan sections.
+Research skill subagents (like `best-practices-researcher`, `framework-docs-researcher`, `git-history-analyzer`, `repo-research-analyst`) should also be run for relevant plan sections.
 
-### 6. Wait for ALL Agents and Synthesize Everything
+### 6. Wait for ALL subagents and Synthesize Everything
 
 <thinking>
-Wait for ALL parallel agents to complete - skills, research agents, review agents, everything. Then synthesize all findings into a comprehensive enhancement.
+Wait for ALL parallel subagents to complete - skills, research subagents, review subagents, everything. Then synthesize all findings into a comprehensive enhancement.
 </thinking>
 
 **Collect outputs from ALL sources:**
 
-1. **Skill-based sub-agents** - Each skill's full output (code examples, patterns, recommendations)
-2. **Learnings/Solutions sub-agents** - Relevant documented learnings from /workflows:compound
-3. **Research agents** - Best practices, documentation, real-world examples
-4. **Review agents** - All feedback from every reviewer (architecture, security, performance, simplicity, etc.)
+1. **Skill-based subagents** - Each skill's full output (code examples, patterns, recommendations)
+2. **Learnings/Solutions subagents** - Relevant documented learnings from /workflows-compound
+3. **Research subagents** - Best practices, documentation, real-world examples
+4. **Review subagents** - All feedback from every reviewer (architecture, security, performance, simplicity, etc.)
 5. **Ref (1st) or Context7 (if Ref is unavailable) queries** - Framework documentation and patterns
 6. **Web searches** - Current best practices and articles
 
@@ -373,7 +370,7 @@ Wait for ALL parallel agents to complete - skills, research agents, review agent
 - [ ] Relevant learnings (past solutions that apply - prevent repeating mistakes)
 
 **Deduplicate and prioritize:**
-- Merge similar recommendations from multiple agents
+- Merge similar recommendations from multiple subagents
 - Prioritize by impact (high-value improvements first)
 - Flag conflicting advice for human review
 - Group by plan section
@@ -424,7 +421,7 @@ At the top of the plan, add a summary section:
 
 **Deepened on:** [Date]
 **Sections enhanced:** [Count]
-**Research agents used:** [List]
+**Research subagents used:** [List]
 
 ### Key Improvements
 1. [Major improvement 1]

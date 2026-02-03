@@ -235,7 +235,7 @@ When a test fails:
 
    How to proceed?
    1. Fix now - I'll help debug and fix
-   2. Create todo - Add to todos/ for later
+   2. Create task - Add to tasks/ for later
    3. Skip - Continue testing other pages
    ```
 
@@ -245,7 +245,7 @@ When a test fails:
    - Apply fix
    - Re-run the failing test
 
-4. **If "Create todo":**
+4. **If "Create task":**
    - Create `{id}-pending-p1-browser-test-{description}.md`
    - Continue testing
 
@@ -286,7 +286,7 @@ After all tests complete, present summary:
 ### Failures: [count]
 - `/dashboard` - [issue description]
 
-### Created Todos: [count]
+### Created Tasks: [count]
 - `005-pending-p1-browser-test-dashboard-error.md`
 
 ### Result: [PASS / FAIL / PARTIAL]

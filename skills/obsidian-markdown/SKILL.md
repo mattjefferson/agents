@@ -220,7 +220,7 @@ tag:#project status:done
 | `note` | - | Blue, pencil icon |
 | `abstract` | `summary`, `tldr` | Teal, clipboard icon |
 | `info` | - | Blue, info icon |
-| `todo` | - | Blue, checkbox icon |
+| `task` | - | Blue, checkbox icon |
 | `tip` | `hint`, `important` | Cyan, flame icon |
 | `success` | `check`, `done` | Green, checkmark icon |
 | `question` | `help`, `faq` | Yellow, question mark |

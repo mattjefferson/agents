@@ -70,7 +70,7 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
    - **security_issue** → `security-sentinel`
    - **database_issue** → `data-integrity-guardian`
    - **test_failure** → `test-quality-reviewer`
-   - Any code-heavy issue → `kieran-typescript-reviewer` + `code-simplicity-reviewer`
+   - Any code-heavy issue → `typescript-reviewer` + `code-simplicity-reviewer`
 
 ## What It Captures
 

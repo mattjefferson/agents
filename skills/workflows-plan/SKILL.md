@@ -103,10 +103,10 @@ Examples:
 
 **Only run if Step 1.5 indicates external research is valuable.**
 
-Run these agents in parallel:
+Run these subagents in parallel:
 
-- Task best-practices-researcher (feature_description)
-- Task framework-docs-researcher (feature_description)
+- skill best-practices-researcher (feature_description)
+- skill framework-docs-researcher (feature_description)
 
 ### 1.6. Consolidate Research
 
@@ -150,7 +150,7 @@ Think like a product manager - what would make this issue clear and actionable? 
 
 After planning the issue structure, run SpecFlow Analyzer to validate and refine the feature specification:
 
-- Task spec-flow-analyzer (feature_description, research_findings)
+- skill spec-flow-analyzer (feature_description, research_findings)
 
 **SpecFlow Analyzer Output:**
 
@@ -469,7 +469,7 @@ end
 - [ ] All template sections are complete
 - [ ] Links and references are working
 - [ ] Acceptance criteria are measurable
-- [ ] Add names of files in pseudo code examples and todo lists
+- [ ] Add names of files in pseudo code examples and task lists
 - [ ] Add an ERD mermaid diagram if applicable for new model changes
 
 ## Output Format
@@ -498,7 +498,7 @@ After writing the plan file, use the **AskUserQuestion tool** to present these o
 **Options:**
 1. **Open plan in editor** - Open the plan file for review
 2. **Run `/deepen-plan`** - Enhance each section with parallel research agents (best practices, performance, UI)
-3. **Run `/technical_review`** - Technical feedback from code-focused reviewers (DHH, Kieran, Simplicity)
+3. **Run `/technical_review`** - Technical feedback from code-focused reviewers
 4. **Review and refine** - Improve the document through structured self-review
 5. **Start `/workflows-work`** - Begin implementing this plan locally
 6. **Start `/workflows-work` on remote** - Begin implementing in Claude Code on the web (use `&` to run in background)

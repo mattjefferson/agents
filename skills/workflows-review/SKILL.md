@@ -50,11 +50,22 @@ Ensure that the code is ready for analysis (either in worktree or on current bra
 
 </task_list>
 
+#### Protected Artifacts
+
+<protected_artifacts>
+The following paths are compound-engineering pipeline artifacts and must never be flagged for deletion, removal, or gitignore by any review agent:
+
+- `docs/plans/*.md` — Plan files created by `/workflows-plan`. These are living documents that track implementation progress (checkboxes are checked off by `/workflows-work`).
+- `docs/solutions/*.md` — Solution documents created during the pipeline.
+
+If a review agent flags any file in these directories for cleanup or removal, discard that finding during synthesis. Do not create a task for it.
+</protected_artifacts>
+
 #### Parallel subagents to review the PR:
 
 <parallel_tasks>
 
-Run ALL or most of these skills as subagents at the same time:
+Run ALL or most of these as subagents in parallel:
 
 1. git-history-analyzer(PR content)
 2. dependency-detective(PR content)
@@ -192,9 +203,9 @@ Complete system context map with component interactions
 
 Run the Task code-simplicity-reviewer() to see if we can simplify the code.
 
-### 5. Findings Synthesis and Todo Creation Using file-todos Skill
+### 5. Findings Synthesis and Task Creation Using file-tasks Skill
 
-<critical_requirement> ALL findings MUST be stored in the todos/ directory using the file-todos skill. Create todo files immediately after synthesis - do NOT present findings for user approval first. Use the skill for structured todo management. </critical_requirement>
+<critical_requirement> ALL findings MUST be stored in the tasks/ directory using the file-tasks skill. Create task files immediately after synthesis - do NOT present findings for user approval first. Use the skill for structured task management. </critical_requirement>
 
 #### Step 1: Synthesize All Findings
 
@@ -206,6 +217,7 @@ Remove duplicates, prioritize by severity and impact.
 <synthesis_tasks>
 
 - [ ] Collect findings from all parallel agents
+- [ ] Discard any findings that recommend deleting or gitignoring files in `docs/plans/` or `docs/solutions/` (see Protected Artifacts above)
 - [ ] Categorize by type: security, performance, architecture, quality, etc.
 - [ ] Assign severity levels: 🔴 CRITICAL (P1), 🟡 IMPORTANT (P2), 🔵 NICE-TO-HAVE (P3)
 - [ ] Remove duplicate or overlapping findings
@@ -213,33 +225,33 @@ Remove duplicates, prioritize by severity and impact.
 
 </synthesis_tasks>
 
-#### Step 2: Create Todo Files Using file-todos 
+#### Step 2: Create Task Files Using file-tasks 
 
-<critical_instruction> Use the file-todos skill to create todo files for ALL findings immediately. Do NOT present findings one-by-one asking for user approval. Create all todo files in parallel using the skill, then summarize results to user. </critical_instruction>
+<critical_instruction> Use the file-tasks skill to create task files for ALL findings immediately. Do NOT present findings one-by-one asking for user approval. Create all task files in parallel using the skill, then summarize results to user. </critical_instruction>
 
 **Implementation Options:**
 
 **Option A: Direct File Creation (Fast)**
 
-- Create todo files directly using Write tool
+- Create task files directly using Write tool
 - All findings in parallel for speed
-- Use standard template from `../file-todos/assets/todo-template.md`
+- Use standard template from `../file-tasks/assets/task-template.md`
 - Follow naming convention: `{issue_id}-pending-{priority}-{description}.md`
 
 **Option B: Sub-Agents in Parallel (Recommended for Scale)** For large PRs with 15+ findings, use sub-agents to create finding files in parallel:
 
 ```bash
-# Launch multiple file-todos in parallel
-Task() - Create todos for first finding
-Task() - Create todos for second finding
-Task() - Create todos for third finding
+# Launch multiple file-tasks in parallel
+Task() - Create tasks for first finding
+Task() - Create tasks for second finding
+Task() - Create tasks for third finding
 etc. for each finding.
 ```
 
 Sub-agents can:
 
 - Process multiple findings simultaneously
-- Write detailed todo files with all sections filled
+- Write detailed task files with all sections filled
 - Organize findings by severity
 - Create comprehensive Proposed Solutions
 - Add acceptance criteria and work logs
@@ -250,10 +262,10 @@ Sub-agents can:
 1. Synthesize all findings into categories (P1/P2/P3)
 2. Group findings by severity
 3. Launch 3 parallel sub-agents (one per severity level)
-4. Each sub-agent creates its batch of todos using the file-todos skill
+4. Each sub-agent creates its batch of tasks using the file-tasks skill
 5. Consolidate results and present summary
 
-**Process (Using file-todos Skill):**
+**Process (Using file-tasks Skill):**
 
 1. For each finding:
 
@@ -263,20 +275,20 @@ Sub-agents can:
    - Estimate effort (Small/Medium/Large)
    - Add acceptance criteria and work log
 
-2. Use file-todos skill for structured todo management:
+2. Use file-tasks skill for structured task management:
 
    ```bash
-   skill: file-todos
+   skill: file-tasks
    ```
 
    The skill provides:
 
-   - Template location: `../file-todos/assets/todo-template.md`
+   - Template location: `../file-tasks/assets/task-template.md`
    - Naming convention: `{issue_id}-{status}-{priority}-{description}.md`
    - YAML frontmatter structure: status, priority, issue_id, tags, dependencies
    - All required sections: Problem Statement, Findings, Solutions, etc.
 
-3. Create todo files in parallel:
+3. Create task files in parallel:
 
    ```bash
    {next_id}-pending-{priority}-{description}.md
@@ -291,11 +303,11 @@ Sub-agents can:
    004-pending-p3-unused-parameter.md
    ```
 
-5. Follow template structure from file-todos skill: `../file-todos/assets/todo-template.md`
+5. Follow template structure from file-tasks skill: `../file-tasks/assets/task-template.md`
 
-**Todo File Structure (from template):**
+**Task File Structure (from template):**
 
-Each todo must include:
+Each task must include:
 
 - **YAML frontmatter**: status, priority, issue_id, tags, dependencies
 - **Problem Statement**: What's broken/missing, why it matters
@@ -334,7 +346,7 @@ Examples:
 
 #### Step 3: Summary Report
 
-After creating all todo files, present comprehensive summary:
+After creating all task files, present comprehensive summary:
 
 ````markdown
 ## ✅ Code Review Complete
@@ -348,7 +360,7 @@ After creating all todo files, present comprehensive summary:
 - **🟡 IMPORTANT (P2):** [count] - Should Fix
 - **🔵 NICE-TO-HAVE (P3):** [count] - Enhancements
 
-### Created Todo Files:
+### Created Task Files:
 
 **P1 - Critical (BLOCKS MERGE):**
 
@@ -377,27 +389,27 @@ After creating all todo files, present comprehensive summary:
 
 1. **Address P1 Findings**: CRITICAL - must be fixed before merge
 
-   - Review each P1 todo in detail
+   - Review each P1 task in detail
    - Implement fixes or request exemption
    - Verify fixes before merging PR
 
-2. **Triage All Todos**:
+2. **Triage All Tasks**:
    ```bash
-   ls todos/*-pending-*.md  # View all pending todos
+   ls tasks/*-pending-*.md  # View all pending tasks
    /triage                  # Use slash command for interactive triage
    ```
 ````
 
-3. **Work on Approved Todos**:
+3. **Work on Approved Tasks**:
 
    ```bash
-   /resolve_todo_parallel  # Fix all approved items efficiently
+   /resolve_task_parallel  # Fix all approved items efficiently
    ```
 
 4. **Track Progress**:
    - Rename file when status changes: pending → ready → complete
    - Update Work Log as you work
-   - Commit todos: `git add todos/ && git commit -m "refactor: add code review findings"`
+   - Commit tasks: `git add tasks/ && git commit -m "refactor: add code review findings"`
 
 ### Severity Breakdown:
 
@@ -452,7 +464,7 @@ After presenting the Summary Report, offer appropriate testing based on project 
 **For iOS Projects:**
 ```markdown
 **"Want to run Xcode simulator tests on the app?"**
-1. Yes - run `/xcode-test`
+1. Yes - run `/test-xcode`
 2. No - skip
 ```
 
@@ -460,7 +472,7 @@ After presenting the Summary Report, offer appropriate testing based on project 
 ```markdown
 **"Want to run end-to-end tests?"**
 1. Web only - run `/test-browser`
-2. iOS only - run `/xcode-test`
+2. iOS only - run `/test-xcode`
 3. Both - run both commands
 4. No - skip
 ```
@@ -472,7 +484,7 @@ After presenting the Summary Report, offer appropriate testing based on project 
 Spawn a subagent to run browser tests (preserves main context):
 
 ```
-Task general-purpose("Run /test-browser for PR #[number]. Test all affected pages, check for console errors, handle failures by creating todos and fixing.")
+Task general-purpose("Run /test-browser for PR #[number]. Test all affected pages, check for console errors, handle failures by creating tasks and fixing.")
 ```
 
 The subagent will:
@@ -481,7 +493,7 @@ The subagent will:
 3. Check for console errors
 4. Test critical interactions
 5. Pause for human verification on OAuth/email/payment flows
-6. Create P1 todos for any failures
+6. Create P1 tasks for any failures
 7. Fix and retry until all tests pass
 
 **Standalone:** `/test-browser [PR number]`
@@ -491,7 +503,7 @@ The subagent will:
 Spawn a subagent to run Xcode tests (preserves main context):
 
 ```
-Task general-purpose("Run /xcode-test for scheme [name]. Build for simulator, install, launch, take screenshots, check for crashes.")
+Task general-purpose("Run /test-xcode for scheme [name]. Build for simulator, install, launch, take screenshots, check for crashes.")
 ```
 
 The subagent will:
@@ -502,10 +514,10 @@ The subagent will:
 5. Take screenshots of key screens
 6. Capture console logs for errors
 7. Pause for human verification (Sign in with Apple, push, IAP)
-8. Create P1 todos for any failures
+8. Create P1 tasks for any failures
 9. Fix and retry until all tests pass
 
-**Standalone:** `/xcode-test [scheme]`
+**Standalone:** `/test-xcode [scheme]`
 
 ### Important: P1 Findings Block Merge
 

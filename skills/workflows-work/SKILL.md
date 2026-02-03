@@ -4,7 +4,7 @@ description: Execute work plans efficiently while maintaining quality and finish
 ---
 
 ## Arguments
-[plan file, specification, or todo file path]
+[plan file, specification, or task file path]
 
 # Work Plan Execution Command
 
@@ -12,7 +12,7 @@ Execute a work plan efficiently while maintaining quality and finishing features
 
 ## Introduction
 
-This command takes a work document (plan, specification, or todo file) and executes it systematically. The focus is on **shipping complete features** by understanding requirements quickly, following existing patterns, and maintaining quality throughout.
+This command takes a work document (plan, specification, or task file) and executes it systematically. The focus is on **shipping complete features** by understanding requirements quickly, following existing patterns, and maintaining quality throughout.
 
 ## Input Document
 
@@ -74,7 +74,7 @@ This command takes a work document (plan, specification, or todo file) and execu
    - You want to keep the default branch clean while experimenting
    - You plan to switch between branches frequently
 
-3. **Create Todo List**
+3. **Create Task List**
    - Use TodoWrite to break plan into actionable tasks
    - Include dependencies between tasks
    - Prioritize based on what needs to be done first

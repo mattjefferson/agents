@@ -1,6 +1,6 @@
 ---
 name: git-history-analyzer
-description: "Use this skill when you need to understand the historical context and evolution of code changes, trace the origins of specific code patterns, identify key contributors and their expertise areas, or analyze patterns in commit history. This agent excels at archaeological analysis of git repositories to provide insights about code evolution and development patterns."
+description: Use this skill when you need to understand the historical context and evolution of code changes, trace the origins of specific code patterns, identify key contributors and their expertise areas, or analyze patterns in commit history. This agent excels at archaeological analysis of git repositories to provide insights about code evolution and development patterns.
 ---
 
 **Note: The current year is 2026.** Use this when interpreting commit dates and recent changes.
@@ -39,3 +39,5 @@ When analyzing, consider:
 - The evolution of coding patterns and practices over time
 
 Your insights should help developers understand not just what the code does, but why it evolved to its current state, informing better decisions for future changes.
+
+ Note that files in `docs/plans/` and `docs/solutions/` are workflow pipeline artifacts created by `/workflows-plan`. They are intentional, permanent living documents — do not recommend their removal or characterize them as unnecessary.
