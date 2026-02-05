@@ -1,6 +1,6 @@
 ---
 name: commit-push-pr
-description: Commit staged/unstaged changes, push to remote, and create a PR if one doesn't exist. Use when asked to "ship it", "commit push pr", "open a pr", or finish a feature.
+description: Commit staged/unstaged changes, push to remote, and create a PR if one doesn't exist. Use when asked to "ship it", "commit push pr", "commit and push", "open a pr", or finish a feature.
 ---
 
 # Commit, Push, PR
