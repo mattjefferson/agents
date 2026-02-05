@@ -68,13 +68,13 @@ If a review agent flags any file in these directories for cleanup or removal, di
 Run ALL or most of these as subagents in parallel:
 
 1. git-history-analyzer(PR content)
-2. dependency-detective(PR content)
-3. pattern-recognition-specialist(PR content)
-4. architecture-strategist(PR content)
-5. security-review(PR content)
-6. performance-wiz(PR content)
-7. data-integrity-guardian(PR content)
-8. agent-native-reviewer(PR content) - Verify new features are agent-accessible
+2. analyze-dependencies(PR content)
+3. analyze-patterns(PR content)
+4. analyze-architecture(PR content)
+5. review-security(PR content)
+6. analyze-performance(PR content)
+7. review-data-integrity(PR content)
+8. review-agent-native(PR content) - Verify new features are agent-accessible
 
 </parallel_tasks>
 
@@ -86,8 +86,8 @@ These skills are run ONLY when the PR matches specific criteria. Check the PR fi
 
 **If PR contains database migrations or data backfills:**
 
-14. data-migration-expert(PR content) - Validates ID mappings match production, checks for swapped values, verifies rollback safety
-15. deployment-verification-agent(PR content) - Creates Go/No-Go deployment checklist with SQL verification queries
+14. review-data-migrations(PR content) - Validates ID mappings match production, checks for swapped values, verifies rollback safety
+15. verify-deployment(PR content) - Creates Go/No-Go deployment checklist with SQL verification queries
 
 **When to run migration skills:**
 - PR includes files matching `db/migrate/*.rb`
@@ -97,8 +97,8 @@ These skills are run ONLY when the PR matches specific criteria. Check the PR fi
 - PR title/body mentions: migration, backfill, data transformation, ID mapping
 
 **What these skills check:**
-- `data-migration-expert`: Verifies hard-coded mappings match production reality (prevents swapped IDs), checks for orphaned associations, validates dual-write patterns
-- `deployment-verification-agent`: Produces executable pre/post-deploy checklists with SQL queries, rollback procedures, and monitoring plans
+- `review-data-migrations`: Verifies hard-coded mappings match production reality (prevents swapped IDs), checks for orphaned associations, validates dual-write patterns
+- `verify-deployment`: Produces executable pre/post-deploy checklists with SQL queries, rollback procedures, and monitoring plans
 
 </conditional_skills>
 
@@ -201,11 +201,11 @@ Complete system context map with component interactions
 
 ### 4. Simplification and Minimalism Review
 
-Run the Task code-simplicity-reviewer() to see if we can simplify the code.
+Run the Task review-code-simplicity() to see if we can simplify the code.
 
-### 5. Findings Synthesis and Task Creation Using file-tasks Skill
+### 5. Findings Synthesis and Task Creation Using tasks-router Skill
 
-<critical_requirement> ALL findings MUST be stored in the tasks/ directory using the file-tasks skill. Create task files immediately after synthesis - do NOT present findings for user approval first. Use the skill for structured task management. </critical_requirement>
+<critical_requirement> ALL findings MUST be stored using the tasks-router skill. It selects tasks-file (tasks/ directory) or tasks-beads (.beads/) based on the repo. Create tasks immediately after synthesis - do NOT present findings for user approval first. </critical_requirement>
 
 #### Step 1: Synthesize All Findings
 
@@ -225,30 +225,31 @@ Remove duplicates, prioritize by severity and impact.
 
 </synthesis_tasks>
 
-#### Step 2: Create Task Files Using file-tasks 
+#### Step 2: Create Tasks Using tasks-router 
 
-<critical_instruction> Use the file-tasks skill to create task files for ALL findings immediately. Do NOT present findings one-by-one asking for user approval. Create all task files in parallel using the skill, then summarize results to user. </critical_instruction>
+<critical_instruction> Use the tasks-router skill to create tasks for ALL findings immediately. Do NOT present findings one-by-one asking for user approval. Create all tasks in parallel using the skill, then summarize results to user. </critical_instruction>
 
 **Implementation Options:**
 
-**Option A: Direct File Creation (Fast)**
+**Option A: Direct Creation (Fast)**
 
-- Create task files directly using Write tool
+- Create tasks directly using the selected system
 - All findings in parallel for speed
-- Use standard template from `../file-tasks/assets/task-template.md`
-- Follow naming convention: `{issue_id}-pending-{priority}-{description}.md`
+- If tasks-file: use standard template from `../tasks-file/assets/task-template.md`
+- If tasks-file: follow naming convention `{issue_id}-pending-{priority}-{description}.md`
+- If tasks-beads: use `br create --json` + `br update --design/--notes/--acceptance-criteria --json`
 
-**Option B: Sub-Agents in Parallel (Recommended for Scale)** For large PRs with 15+ findings, use sub-agents to create finding files in parallel:
+**Option B: Subagents in Parallel (Recommended for Scale)** For large PRs with 15+ findings, use subagents to create finding files in parallel:
 
 ```bash
-# Launch multiple file-tasks in parallel
-Task() - Create tasks for first finding
-Task() - Create tasks for second finding
-Task() - Create tasks for third finding
+# Launch multiple tasks-router in parallel
+- Create tasks for first finding
+- Create tasks for second finding
+- Create tasks for third finding
 etc. for each finding.
 ```
 
-Sub-agents can:
+Subagents can:
 
 - Process multiple findings simultaneously
 - Write detailed task files with all sections filled
@@ -261,11 +262,11 @@ Sub-agents can:
 
 1. Synthesize all findings into categories (P1/P2/P3)
 2. Group findings by severity
-3. Launch 3 parallel sub-agents (one per severity level)
-4. Each sub-agent creates its batch of tasks using the file-tasks skill
+3. Launch 3 parallel subagents (one per severity level)
+4. Each subagent creates its batch of tasks using the tasks-router skill
 5. Consolidate results and present summary
 
-**Process (Using file-tasks Skill):**
+**Process (Using tasks-router Skill):**
 
 1. For each finding:
 
@@ -275,18 +276,18 @@ Sub-agents can:
    - Estimate effort (Small/Medium/Large)
    - Add acceptance criteria and work log
 
-2. Use file-tasks skill for structured task management:
+2. Use tasks-router skill for structured task management:
 
    ```bash
-   skill: file-tasks
+   skill: tasks-router
    ```
 
    The skill provides:
 
-   - Template location: `../file-tasks/assets/task-template.md`
-   - Naming convention: `{issue_id}-{status}-{priority}-{description}.md`
-   - YAML frontmatter structure: status, priority, issue_id, tags, dependencies
-   - All required sections: Problem Statement, Findings, Solutions, etc.
+   - If tasks-file: template location `../tasks-file/assets/task-template.md`
+   - If tasks-file: naming convention `{issue_id}-{status}-{priority}-{description}.md`
+   - If tasks-file: YAML frontmatter structure, required sections
+   - If tasks-beads: use `br create --json`, `br update --design --json` (solutions/technical details), `br update --notes --json` (findings/resources), `br update --acceptance-criteria --json`, and comments for work log
 
 3. Create task files in parallel:
 
@@ -303,7 +304,7 @@ Sub-agents can:
    004-pending-p3-unused-parameter.md
    ```
 
-5. Follow template structure from file-tasks skill: `../file-tasks/assets/task-template.md`
+5. If tasks-file, follow template structure from `../tasks-file/assets/task-template.md`. If tasks-beads, map sections to Beads fields.
 
 **Task File Structure (from template):**
 
@@ -318,6 +319,8 @@ Each task must include:
 - **Acceptance Criteria**: Testable checklist items
 - **Work Log**: Dated record with actions and learnings
 - **Resources**: Links to PR, issues, documentation, similar patterns
+
+If tasks-beads is selected, map these sections to Beads fields (see tasks-beads skill).
 
 **File naming convention:**
 
@@ -360,29 +363,30 @@ After creating all task files, present comprehensive summary:
 - **🟡 IMPORTANT (P2):** [count] - Should Fix
 - **🔵 NICE-TO-HAVE (P3):** [count] - Enhancements
 
-### Created Task Files:
+### Created Tasks:
 
 **P1 - Critical (BLOCKS MERGE):**
 
-- `001-pending-p1-{finding}.md` - {description}
-- `002-pending-p1-{finding}.md` - {description}
+- `001-pending-p1-{finding}.md` - {description} (tasks-file)
+- `Issue #123` - {description} (tasks-beads)
 
 **P2 - Important:**
 
-- `003-pending-p2-{finding}.md` - {description}
-- `004-pending-p2-{finding}.md` - {description}
+- `003-pending-p2-{finding}.md` - {description} (tasks-file)
+- `Issue #124` - {description} (tasks-beads)
 
 **P3 - Nice-to-Have:**
 
-- `005-pending-p3-{finding}.md` - {description}
+- `005-pending-p3-{finding}.md` - {description} (tasks-file)
+- `Issue #125` - {description} (tasks-beads)
 
 ### Review Agents Used:
 
-- security-review
-- performance-wiz
-- architecture-strategist
-- agent-native-reviewer
-- code-simplicity-reviewer
+- review-security
+- analyze-performance
+- analyze-architecture
+- review-agent-native
+- review-code-simplicity
 - [other agents]
 
 ### Next Steps:
@@ -395,8 +399,7 @@ After creating all task files, present comprehensive summary:
 
 2. **Triage All Tasks**:
    ```bash
-   ls tasks/*-pending-*.md  # View all pending tasks
-   /triage                  # Use slash command for interactive triage
+   /triage  # Uses tasks-router and routes to tasks-file or tasks-beads
    ```
 ````
 
@@ -407,9 +410,9 @@ After creating all task files, present comprehensive summary:
    ```
 
 4. **Track Progress**:
-   - Rename file when status changes: pending → ready → complete
-   - Update Work Log as you work
-   - Commit tasks: `git add tasks/ && git commit -m "refactor: add code review findings"`
+   - If tasks-file: rename file when status changes: pending → ready → complete
+   - If tasks-beads: update status with `br update --json` and add work log comments
+   - Commit tasks: `git add tasks/` (tasks-file) or `br sync --flush-only --json && git add .beads/` (tasks-beads)
 
 ### Severity Breakdown:
 
@@ -468,7 +471,7 @@ After presenting the Summary Report, offer appropriate testing based on project 
 2. No - skip
 ```
 
-**For Hybrid Projects (e.g., Rails + Hotwire Native):**
+**For Hybrid Projects:**
 ```markdown
 **"Want to run end-to-end tests?"**
 1. Web only - run `/test-browser`

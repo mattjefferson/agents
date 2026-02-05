@@ -170,15 +170,15 @@ This command takes a work document (plan, specification, or task file) and execu
 
    Use for complex, risky, or large changes:
 
-   - **code-simplicity-reviewer**: Check for unnecessary complexity
-   - **performance-wiz**: Check for performance issues
-   - **security-review**: Scan for security vulnerabilities
+   - **review-code-simplicity**: Check for unnecessary complexity
+   - **analyze-performance**: Check for performance issues
+   - **review-security**: Scan for security vulnerabilities
 
    Run reviewers in parallel with Task tool:
 
    ```
-   Task(code-simplicity-reviewer): "Review changes for simplicity"
-   Task(security-review): "Check for security issues"
+   Task(review-code-simplicity): "Review changes for simplicity"
+   Task(review-security): "Check for security issues"
    ```
 
    Present findings to user and address critical issues.

@@ -236,7 +236,7 @@ When a test fails:
 
    How to proceed?
    1. Fix now - I'll help debug and fix
-   2. Create task - Add to tasks/ for later
+   2. Create task - Use tasks-router (tasks-file or tasks-beads)
    3. Skip - Continue testing other screens
    ```
 
@@ -246,7 +246,9 @@ When a test fails:
    - Rebuild and retest
 
 4. **If "Create task":**
-   - Create `{id}-pending-p1-xcode-{description}.md`
+   - Use tasks-router to select the system
+   - If tasks-file: create `{id}-pending-p1-xcode-{description}.md`
+   - If tasks-beads: `br create --title="Xcode test: {description}" --type=bug --priority=P1 --description="..." --json` and add notes if needed (use type mapping from tasks-beads)
    - Continue testing
 
 </failure_handling>
@@ -286,7 +288,8 @@ After all tests complete, present summary:
 - Settings screen - crash on navigation
 
 ### Created Tasks: [count]
-- `006-pending-p1-xcode-settings-crash.md`
+- `006-pending-p1-xcode-settings-crash.md` (tasks-file)
+- Issue #106 (tasks-beads)
 
 ### Result: [PASS / FAIL / PARTIAL]
 ```

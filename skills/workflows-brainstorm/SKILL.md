@@ -43,7 +43,7 @@ Use **AskUserQuestion tool** to suggest: "Your requirements seem detailed enough
 
 Run a quick repo scan to understand existing patterns:
 
-- Task repo-research-analyst("Understand existing patterns related to: <feature_description>")
+- Task research-repo("Understand existing patterns related to: <feature_description>")
 
 Focus on: similar features, established patterns, CLAUDE.md guidance.
 
@@ -93,9 +93,9 @@ Use **AskUserQuestion tool** to present next steps:
 
 **If user selects "Review and refine":**
 
-Load the `document-review` skill and apply it to the brainstorm document.
+Load the `review-document` skill and apply it to the brainstorm document.
 
-When document-review returns "Review complete", present next steps:
+When review-document returns "Review complete", present next steps:
 
 1. **Move to planning** - Continue to `/workflows-plan` with this document
 2. **Done for now** - Brainstorming complete. To start planning later: `/workflows-plan [document-path]`

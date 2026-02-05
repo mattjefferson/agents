@@ -65,12 +65,12 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
 
 ### 7. **Optional: Specialized Agent Invocation** (Post-Documentation)
    Based on problem type detected, automatically invoke applicable agents:
-   - **performance_issue** → `performance-wiz`
-   - **dependency_issue** → `dependency-detective`
-  - **security_issue** → `security-review`
-   - **database_issue** → `data-integrity-guardian`
-   - **test_failure** → `test-quality-reviewer`
-   - Any code-heavy issue → `typescript-reviewer` + `code-simplicity-reviewer`
+   - **performance_issue** → `analyze-performance`
+   - **dependency_issue** → `analyze-dependencies`
+  - **security_issue** → `review-security`
+   - **database_issue** → `review-data-integrity`
+   - **test_failure** → `review-test-quality`
+   - Any code-heavy issue → `review-typescript` + `review-code-simplicity`
 
 ## What It Captures
 
@@ -127,8 +127,8 @@ Primary Subagent Results:
   ✓ Documentation Writer: Created complete markdown
 
 Specialized Agent Reviews (Auto-Triggered):
-  ✓ performance-wiz: Validated query optimization approach
-  ✓ code-simplicity-reviewer: Solution is appropriately minimal
+  ✓ analyze-performance: Validated query optimization approach
+  ✓ review-code-simplicity: Solution is appropriately minimal
   ✓ matts-style-editor: Documentation style verified
 
 File created:
@@ -172,32 +172,32 @@ Build → Test → Find Issue → Research → Improve → Document → Validate
 
 ## Routes To
 
-`compound-docs` skill
+`docs-compound` skill
 
 ## Applicable Specialized Agents
 
 Based on problem type, these agents can enhance documentation:
 
 ### Code Quality & Review
-- **code-simplicity-reviewer**: Ensures solution code is minimal and clear
-- **pattern-recognition-specialist**: Identifies anti-patterns or repeating issues
+- **review-code-simplicity**: Ensures solution code is minimal and clear
+- **analyze-patterns**: Identifies anti-patterns or repeating issues
 
 ### Specific Domain Experts
-- **performance-wiz**: Analyzes performance_issue category solutions
-- **security-review**: Reviews security_issue solutions for vulnerabilities
-- **test-quality-reviewer**: Creates test cases for prevention strategies
-- **data-integrity-guardian**: Reviews database_issue migrations and queries
+- **analyze-performance**: Analyzes performance_issue category solutions
+- **review-security**: Reviews security_issue solutions for vulnerabilities
+- **review-test-quality**: Creates test cases for prevention strategies
+- **review-data-integrity**: Reviews database_issue migrations and queries
 
 ### Enhancement & Documentation
-- **best-practices-researcher**: Enriches solution with industry best practices
+- **research-best-practices**: Enriches solution with industry best practices
 - **matts-style-editor**: Reviews documentation style and clarity
 - **framework-docs-researcher**: Links to Rails/gem documentation references
 
 ### When to Invoke
 - **Auto-triggered** (optional): Agents can run post-documentation for enhancement
-- **Manual trigger**: User can invoke agents after /workflows:compound completes for deeper review
+- **Manual trigger**: User can invoke agents after /workflows-compound completes for deeper review
 
 ## Related Commands
 
-- `/repo-research-analyst [topic]` - Deep investigation (searches docs/solutions/ for patterns)
+- `/research-repo [topic]` - Deep investigation (searches docs/solutions/ for patterns)
 - `/workflows-plan` - Planning workflow (references documented solutions)

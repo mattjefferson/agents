@@ -1,14 +1,12 @@
 ---
 name: resolve_pr_parallel
 description: Resolve all PR comments using parallel processing
+argument-hint: "[optional: PR number or current PR]"
 ---
-
-## Arguments
-[optional: PR number or current PR]
 
 Resolve all PR comments using parallel processing.
 
-Agent automatically detects and understands your git context:
+Claude Code automatically detects and understands your git context:
 
 - Current branch detection
 - Associated PR context
@@ -19,33 +17,48 @@ Agent automatically detects and understands your git context:
 
 ### 1. Analyze
 
-Get all unresolved comments for PR
+Get all unresolved comments for the PR:
 
 ```bash
+# Get PR status and context
 gh pr status
-scripts/get-pr-comments PR_NUMBER
+
+# Get review comments (inline code comments)
+gh api repos/{owner}/{repo}/pulls/PR_NUMBER/comments
+
+# Get reviews with their bodies
+gh pr view PR_NUMBER --json reviews,comments
 ```
 
 ### 2. Plan
 
-Create a TodoWrite list of all unresolved items grouped by type.
+Create a list of all unresolved items grouped by type.
 
 ### 3. Implement (PARALLEL)
 
-Spawn a pr-comment-resolver subagent for each unresolved item in parallel.
+Use the `pr-comment-resolver` skill
 
-So if there are 3 comments, it will spawn 3 pr-comment-resolver subagents in parallel. like this
+Spawn a `pr-comment-resolver` subagent for each unresolved item, in parallel.
 
-1. pr-comment-resolver(comment1)
-2. pr-comment-resolver(comment2)
-3. pr-comment-resolver(comment3)
+Example with 3 comments:
 
-Always run all in parallel subagents for each Task item.
+1. `pr-comment-resolver(comment1)`
+2. `pr-comment-resolver(comment2)`
+3. `pr-comment-resolver(comment3)`
 
-### 4. Commit & Resolve
+Always run one subagent per unresolved item, in parallel.
 
-- Commit changes
-- Run scripts/resolve-pr-thread THREAD_ID_1
+### 4. Commit & Push
+
+- Commit changes with a clear message referencing the PR feedback
 - Push to remote
 
-Last, check scripts/get-pr-comments PR_NUMBER again to see if all comments are resolved. They should be, if not, repeat the process from 1.
+### 5. Verify
+
+Re-fetch comments to confirm all feedback has been addressed:
+
+```bash
+gh api repos/{owner}/{repo}/pulls/PR_NUMBER/comments
+```
+
+If any comments remain unaddressed, repeat the process from step 1.

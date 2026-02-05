@@ -6,7 +6,8 @@ description: Triage and categorize findings for the task system
 ## Arguments
 [findings list or source type]
 
-- Read all pending tasks in the tasks/ directory
+- Use tasks-router to select the task system
+- Read pending tasks from tasks/ (tasks-file) or `br list --status=open --json` (tasks-beads)
 
 Present all findings, decisions, or issues here one by one for triage. The goal is to go through each item and decide whether to add it to the CLI task system.
 
@@ -20,6 +21,10 @@ This command is for:
 - Handling any other categorized findings that need tracking
 
 ## Workflow
+
+### Step 0: Select Task System
+
+Use the tasks-router skill to decide whether this repo uses tasks-file or tasks-beads. Follow the corresponding instructions below.
 
 ### Step 1: Present Each Finding
 
@@ -56,6 +61,35 @@ Do you want to add this to the task list?
 ### Step 2: Handle User Decision
 
 **When user says "yes":**
+
+First, use tasks-router to select tasks-file or tasks-beads.
+
+**If tasks-beads:**
+
+1. If task already exists:
+   - Update priority and add labels: `br update <id> --priority=P1 --add-label "ready" --add-label "<category>" --json`
+   - Update type if needed: `br update <id> --type=bug|feature|docs|question|epic|task --json`
+   - Add recommended action to notes: `br update <id> --notes "## Recommended Action\n..." --json`
+   - Update acceptance criteria: `br update <id> --acceptance-criteria "- [ ] ..." --json`
+   - Set effort estimate if known: `br update <id> --estimate=120 --json`
+2. If creating a new task:
+   - Create issue: `br create --title="..." --type=... --priority=P1 --description="Problem statement" --json`
+   - Add design (solutions/technical): `br update <id> --design "## Proposed Solutions\n..." --json`
+   - Add notes (findings/resources): `br update <id> --notes "## Findings\n..." --json`
+   - Add acceptance criteria: `br update <id> --acceptance-criteria "- [ ] ..." --json`
+3. Add triage approval comment:
+   - `br comments add <id> --message "Approved during triage. Ready for work." --json`
+4. Confirm approval: "✅ Approved: Issue #<id> - Status: **open** (label: ready)"
+
+Field mapping: `description`=problem, `design`=solutions/technical, `notes`=findings/resources/recommended action, `acceptance_criteria`=done criteria
+
+Priority mapping for tasks-beads:
+
+- 🔴 P1 (CRITICAL) -> `P1`
+- 🟡 P2 (IMPORTANT) -> `P2`
+- 🔵 P3 (NICE-TO-HAVE) -> `P3`
+
+**If tasks-file:**
 
 1. **Update existing task file** (if it exists) or **Create new filename:**
 
@@ -149,7 +183,8 @@ Do you want to add this to the task list?
 
 **When user says "next":**
 
-- **Delete the task file** - Remove it from tasks/ directory since it's not relevant
+- If tasks-file: delete the task file from tasks/ directory
+- If tasks-beads: close the issue with a reason, for example `br close <id> --reason="Not pursuing" --json`
 - Skip to the next item
 - Track skipped items for summary
 
@@ -177,27 +212,28 @@ After all items processed:
 
 ### Approved Tasks (Ready for Work):
 
-- `042-ready-p1-transaction-boundaries.md` - Transaction boundary issue
-- `043-ready-p2-cache-optimization.md` - Cache performance improvement ...
+- `042-ready-p1-transaction-boundaries.md` - Transaction boundary issue (tasks-file)
+- Issue #42 - Transaction boundary issue (tasks-beads)
 
 ### Skipped Items (Deleted):
 
-- Item #5: [reason] - Removed from tasks/
-- Item #12: [reason] - Removed from tasks/
+- Item #5: [reason] - Removed from tasks/ (tasks-file)
+- Item #12: [reason] - Closed issue (tasks-beads)
 
 ### Summary of Changes Made:
 
 During triage, the following status updates occurred:
 
-- **Pending → Ready:** Filenames and frontmatter updated to reflect approved status
-- **Deleted:** Task files for skipped findings removed from tasks/ directory
-- Each approved file now has `status: ready` in YAML frontmatter
+- **Pending → Ready (tasks-file):** Filenames and frontmatter updated to reflect approved status
+- **Open + ready label (tasks-beads):** Issues labeled ready with updated notes and acceptance criteria
+- **Deleted/Closed:** Task files removed (tasks-file) or issues closed (tasks-beads)
 
 ### Next Steps:
 
 1. View approved tasks ready for work:
    ```bash
-   ls tasks/*-ready-*.md
+   ls tasks/*-ready-*.md          # tasks-file
+   br ready --json                # tasks-beads
    ```
 ````
 
@@ -210,8 +246,8 @@ During triage, the following status updates occurred:
 3. Or pick individual items to work on
 
 4. As you work, update task status:
-   - Ready → In Progress (in your local context as you work)
-   - In Progress → Complete (rename file: ready → complete, update frontmatter)
+   - If tasks-file: rename `ready → complete`, update frontmatter
+   - If tasks-beads: claim before starting: `br update <id> --claim --json`, then close when done: `br close <id> --reason="Completed" --json`
 
 ```
 
@@ -275,6 +311,12 @@ Do you want to add this to the task list?
 1. Delete the task file from tasks/ directory
 2. Skip to next item
 3. No file remains in the system
+
+**When using tasks-beads:**
+1. Approve: `br update <id> --add-label "ready" --priority=P1 --json`
+2. Add recommended action: `br update <id> --notes "## Recommended Action\n..." --json`
+3. Work log: `br comments add <id> --message "Approved during triage. Ready for work." --json`
+4. Skip: `br close <id> --reason="Not pursuing" --json`
 
 ### Progress Tracking
 

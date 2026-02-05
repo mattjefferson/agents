@@ -110,7 +110,7 @@ Claude analyzes code in the current conversation context.
 
 ### Pattern: Security Review
 
-**File**: `.claude/commands/security-review.md`
+**File**: `.claude/commands/review-security.md`
 ```markdown
 ---
 description: Review this code for security vulnerabilities
@@ -135,7 +135,7 @@ Review code for security vulnerabilities and suggest fixes.
 </success_criteria>
 ```
 
-**Usage**: `/security-review`
+**Usage**: `/review-security`
 
 ### Pattern: File-Specific Analysis
 

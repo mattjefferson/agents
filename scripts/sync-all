@@ -1,0 +1,584 @@
+#!/usr/bin/env bash
+# sync-all - Sync skills and commands to Claude, Codex, and Gemini
+#
+# Usage:
+#   sync-all                   # Sync all
+#   sync-all --dry-run         # Preview what would be synced
+#   sync-all --prune           # Remove extra items from destinations
+#   sync-all --help            # Show help
+#
+set -euo pipefail
+
+VERSION="1.0.0"
+
+# -----------------------------------------------------------------------------
+# Configuration
+# -----------------------------------------------------------------------------
+SKILLS_SRC="$HOME/projects/agent-scripts/skills"
+COMMANDS_SRC="$HOME/projects/agent-scripts/commands"
+
+# Skill destinations
+CLAUDE_SKILLS_DEST="$HOME/.claude/skills"
+AGENTS_SKILLS_DEST="$HOME/.agents/skills"  # shared by Codex & Gemini
+
+# Command destinations
+CLAUDE_COMMANDS_DEST="$HOME/.claude/commands"
+CODEX_COMMANDS_DEST="$HOME/.codex/prompts"
+GEMINI_COMMANDS_DEST="$HOME/.gemini/commands"
+
+# Commands to exclude from sync
+EXCLUDED_COMMANDS=()
+
+# -----------------------------------------------------------------------------
+# Stats tracking (for summary table) - using simple vars for bash 3.x compat
+# -----------------------------------------------------------------------------
+CLAUDE_SKILLS_NEW=0 CLAUDE_SKILLS_UPDATED=0 CLAUDE_SKILLS_PRUNED=0
+AGENTS_SKILLS_NEW=0 AGENTS_SKILLS_UPDATED=0 AGENTS_SKILLS_PRUNED=0
+CLAUDE_CMDS_SYNCED=0 CLAUDE_CMDS_EXCLUDED=0 CLAUDE_CMDS_SKILL_SKIP=0 CLAUDE_CMDS_PRUNED=0
+CODEX_CMDS_SYNCED=0 CODEX_CMDS_EXCLUDED=0 CODEX_CMDS_SKILL_SKIP=0 CODEX_CMDS_PRUNED=0
+GEMINI_CMDS_SYNCED=0 GEMINI_CMDS_EXCLUDED=0 GEMINI_CMDS_SKILL_SKIP=0 GEMINI_CMDS_PRUNED=0
+
+# -----------------------------------------------------------------------------
+# Colors
+# -----------------------------------------------------------------------------
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+
+# Gum availability flag
+GUM_AVAILABLE=false
+
+# -----------------------------------------------------------------------------
+# Gum auto-installation
+# -----------------------------------------------------------------------------
+try_install_gum() {
+    if [[ "$(uname -s)" != "Darwin"* ]]; then
+        return 1
+    fi
+
+    echo -e "${BLUE}→${NC} Installing gum for prettier output..."
+
+    if command -v brew &> /dev/null; then
+        brew install gum &>/dev/null && return 0
+    fi
+
+    return 1
+}
+
+check_gum() {
+    # Gum needs a TTY for table rendering
+    if ! [ -t 1 ]; then
+        return 1
+    fi
+
+    if command -v gum &> /dev/null; then
+        GUM_AVAILABLE=true
+        return 0
+    fi
+
+    if try_install_gum && command -v gum &> /dev/null; then
+        GUM_AVAILABLE=true
+        return 0
+    fi
+
+    return 1
+}
+
+# -----------------------------------------------------------------------------
+# Styled output functions
+# -----------------------------------------------------------------------------
+print_banner() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style \
+            --border rounded \
+            --border-foreground 212 \
+            --padding "0 2" \
+            --margin "1 0" \
+            --bold \
+            "🔄 sync-all v${VERSION}" \
+            "Sync skills & commands to Claude, Codex & Gemini"
+    else
+        echo -e "\n${BOLD}${MAGENTA}╭───────────────────────────────────────────────────╮${NC}"
+        echo -e "${BOLD}${MAGENTA}│${NC}  ${BOLD}🔄 sync-all v${VERSION}${NC}                        ${BOLD}${MAGENTA}│${NC}"
+        echo -e "${BOLD}${MAGENTA}│${NC}  ${DIM}Sync skills & commands to Claude, Codex & Gemini${NC} ${BOLD}${MAGENTA}│${NC}"
+        echo -e "${BOLD}${MAGENTA}╰───────────────────────────────────────────────────╯${NC}\n"
+    fi
+}
+
+log_info() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 39 "ℹ $1"
+    else
+        echo -e "${GREEN}[info]${NC} $1"
+    fi
+}
+
+log_error() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 196 "✗ $1"
+    else
+        echo -e "${RED}[error]${NC} $1" >&2
+    fi
+}
+
+log_success() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 82 "✓ $1"
+    else
+        echo -e "${GREEN}✓${NC} $1"
+    fi
+}
+
+log_step() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 39 "→ $1"
+    else
+        echo -e "${BLUE}→${NC} $1"
+    fi
+}
+
+log_section() {
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style --foreground 214 --bold "$1"
+    else
+        echo -e "${BOLD}${YELLOW}$1${NC}"
+    fi
+}
+
+show_help() {
+    check_gum || true
+
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        gum style \
+            --border rounded \
+            --border-foreground 212 \
+            --padding "0 2" \
+            --margin "1 0" \
+            --bold \
+            "🔄 sync-all v${VERSION}"
+
+        echo ""
+        gum style --foreground 214 --bold "SYNOPSIS"
+        echo "  sync-all [OPTIONS]"
+        echo ""
+
+        gum style --foreground 214 --bold "DESCRIPTION"
+        gum style --padding "0 2" "Sync skills and commands from source directories to Claude,
+Codex, and Gemini directories."
+        echo ""
+
+        gum style --foreground 214 --bold "OPTIONS"
+        gum style --foreground 82 "  --dry-run, -n"
+        gum style --foreground 245 "      Preview changes without modifying anything"
+        gum style --foreground 82 "  --prune"
+        gum style --foreground 245 "      Remove items in destinations not present in source"
+        gum style --foreground 82 "  --help, -h"
+        gum style --foreground 245 "      Show this help message"
+        echo ""
+
+        gum style --foreground 214 --bold "NOTES"
+        gum style --foreground 245 "  For Claude, commands with matching skill names are skipped."
+    else
+        echo -e "${BOLD}sync-all${NC} v${VERSION}"
+        echo ""
+        echo "Sync skills & commands to Claude, Codex & Gemini"
+        echo ""
+        echo "USAGE:"
+        echo "  sync-all [OPTIONS]"
+        echo ""
+        echo "OPTIONS:"
+        echo "  --dry-run, -n   Preview changes without modifying anything"
+        echo "  --prune         Remove items in destinations not present in source"
+        echo "  --help, -h      Show this help message"
+        echo ""
+        echo "NOTES:"
+        echo "  For Claude, commands with matching skill names are skipped."
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Skill sync helpers
+# -----------------------------------------------------------------------------
+SKILL_NAMES=()
+
+collect_skill_names() {
+    SKILL_NAMES=()
+    shopt -s nullglob
+    for d in "$SKILLS_SRC"/*/; do
+        SKILL_NAMES+=("$(basename "$d")")
+    done
+    shopt -u nullglob
+}
+
+skill_in_source() {
+    local needle="$1"
+    for skill in "${SKILL_NAMES[@]}"; do
+        [[ "$skill" == "$needle" ]] && return 0
+    done
+    return 1
+}
+
+sync_skills_to_dest() {
+    local dest="$1"
+    local name="$2"
+    local rsync_opts=("-aL" "--delete")
+    $DRY_RUN && rsync_opts=("-aLn" "--delete")
+
+    local new_count=0
+    local update_count=0
+    local prune_count=0
+
+    log_section "$name Skills"
+
+    for skill in "${SKILL_NAMES[@]}"; do
+        local src_skill="$SKILLS_SRC/$skill"
+        local dest_skill="$dest/$skill"
+        local is_new=false
+
+        [[ ! -d "$dest_skill" ]] && is_new=true
+
+        if $DRY_RUN; then
+            if $is_new; then
+                echo -e "  ${CYAN}+${NC} $skill ${DIM}(new)${NC}"
+                ((new_count++))
+            else
+                echo -e "  ${DIM}→ $skill (update)${NC}"
+                ((update_count++))
+            fi
+        else
+            mkdir -p "$dest_skill"
+            rsync "${rsync_opts[@]}" "$src_skill/" "$dest_skill/" > /dev/null 2>&1
+
+            if $is_new; then
+                echo -e "  ${CYAN}+${NC} $skill ${DIM}(new)${NC}"
+                ((new_count++))
+            else
+                echo -e "  ${GREEN}✓${NC} $skill ${DIM}(updated)${NC}"
+                ((update_count++))
+            fi
+        fi
+    done
+
+    if $PRUNE; then
+        shopt -s nullglob
+        for dir in "$dest"/*/; do
+            local dest_skill
+            dest_skill="$(basename "$dir")"
+
+            if ! skill_in_source "$dest_skill"; then
+                if $DRY_RUN; then
+                    echo -e "  ${RED}-${NC} $dest_skill ${DIM}(prune)${NC}"
+                else
+                    if command -v trash &> /dev/null; then
+                        trash "$dir"
+                    else
+                        rm -rf "$dir"
+                    fi
+                    echo -e "  ${RED}-${NC} $dest_skill ${DIM}(pruned)${NC}"
+                fi
+                ((prune_count++))
+            fi
+        done
+        shopt -u nullglob
+    fi
+
+    # Store stats for summary
+    case "$name" in
+        Claude) CLAUDE_SKILLS_NEW=$new_count; CLAUDE_SKILLS_UPDATED=$update_count; CLAUDE_SKILLS_PRUNED=$prune_count ;;
+        Agents) AGENTS_SKILLS_NEW=$new_count; AGENTS_SKILLS_UPDATED=$update_count; AGENTS_SKILLS_PRUNED=$prune_count ;;
+    esac
+
+    echo -e "  ${DIM}$new_count new, $update_count updated, $prune_count pruned${NC}"
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
+# Command sync helpers
+# -----------------------------------------------------------------------------
+is_excluded_command() {
+    local cmd="$1"
+    for excluded in "${EXCLUDED_COMMANDS[@]+"${EXCLUDED_COMMANDS[@]}"}"; do
+        [[ "$cmd" == "$excluded" ]] && return 0
+    done
+    return 1
+}
+
+has_skill() {
+    local cmd="$1"
+    [[ -d "$SKILLS_SRC/$cmd" ]]
+}
+
+command_in_source_raw() {
+    local cmd="$1"
+    [[ -f "$COMMANDS_SRC/$cmd.md" ]]
+}
+
+command_in_source_filtered() {
+    local cmd="$1"
+    [[ -f "$COMMANDS_SRC/$cmd.md" ]] && ! is_excluded_command "$cmd" && ! has_skill "$cmd"
+}
+
+sync_commands_to_dest() {
+    local dest="$1"
+    local label="$2"
+    local apply_exclusions="${3:-true}"
+    local synced=0 skipped=0 skill_skipped=0 pruned=0
+
+    mkdir -p "$dest"
+    log_section "$label Commands"
+
+    shopt -s nullglob
+    for cmd_file in "$COMMANDS_SRC"/*.md; do
+        local filename
+        filename=$(basename "$cmd_file")
+        local cmd="${filename%.md}"
+
+        [[ "$cmd" == "README" ]] && continue
+
+        if [[ "$apply_exclusions" == "true" ]]; then
+            if is_excluded_command "$cmd"; then
+                echo -e "  ${YELLOW}skip${NC} $cmd"
+                ((skipped++))
+                continue
+            fi
+
+            if has_skill "$cmd"; then
+                echo -e "  ${DIM}skip${NC} $cmd ${DIM}(has skill)${NC}"
+                ((skill_skipped++))
+                continue
+            fi
+        fi
+
+        if $DRY_RUN; then
+            echo -e "  ${DIM}→${NC} $cmd"
+        else
+            rsync -L "$cmd_file" "$dest/$filename"
+            echo -e "  ${GREEN}✓${NC} $cmd"
+        fi
+        ((synced++))
+    done
+
+    if $PRUNE; then
+        for dest_file in "$dest"/*.md; do
+            local filename
+            filename=$(basename "$dest_file")
+            local cmd="${filename%.md}"
+            [[ "$cmd" == "README" ]] && continue
+
+            local should_prune=false
+            if [[ "$apply_exclusions" == "true" ]]; then
+                command_in_source_filtered "$cmd" || should_prune=true
+            else
+                command_in_source_raw "$cmd" || should_prune=true
+            fi
+
+            if $should_prune; then
+                if $DRY_RUN; then
+                    echo -e "  ${RED}-${NC} $cmd ${DIM}(prune)${NC}"
+                else
+                    if command -v trash &>/dev/null; then
+                        trash "$dest_file"
+                    else
+                        rm -f "$dest_file"
+                    fi
+                    echo -e "  ${RED}-${NC} $cmd ${DIM}(pruned)${NC}"
+                fi
+                ((pruned++))
+            fi
+        done
+    fi
+    shopt -u nullglob
+
+    # Store stats for summary
+    case "$label" in
+        Claude) CLAUDE_CMDS_SYNCED=$synced; CLAUDE_CMDS_EXCLUDED=$skipped; CLAUDE_CMDS_SKILL_SKIP=$skill_skipped; CLAUDE_CMDS_PRUNED=$pruned ;;
+        Codex)  CODEX_CMDS_SYNCED=$synced;  CODEX_CMDS_EXCLUDED=$skipped;  CODEX_CMDS_SKILL_SKIP=$skill_skipped;  CODEX_CMDS_PRUNED=$pruned ;;
+        Gemini) GEMINI_CMDS_SYNCED=$synced; GEMINI_CMDS_EXCLUDED=$skipped; GEMINI_CMDS_SKILL_SKIP=$skill_skipped; GEMINI_CMDS_PRUNED=$pruned ;;
+    esac
+
+    echo -e "  ${DIM}$synced synced, $skipped excluded, $skill_skipped w/ skills, $pruned pruned${NC}"
+    echo ""
+}
+
+# -----------------------------------------------------------------------------
+# Summary table
+# -----------------------------------------------------------------------------
+print_summary_table() {
+    local skill_count=$1
+    local cmd_count=$2
+
+    echo ""
+
+    if [[ "$GUM_AVAILABLE" == "true" ]]; then
+        # Header
+        gum style --foreground 212 --bold "📊 SYNC SUMMARY"
+        echo ""
+
+        # Skills table
+        gum style --foreground 214 --bold "Skills ($skill_count total)"
+        printf "%s\n" \
+            "Dest,New,Updated,Pruned" \
+            "Claude,$CLAUDE_SKILLS_NEW,$CLAUDE_SKILLS_UPDATED,$CLAUDE_SKILLS_PRUNED" \
+            "Agents,$AGENTS_SKILLS_NEW,$AGENTS_SKILLS_UPDATED,$AGENTS_SKILLS_PRUNED" \
+            | gum table --print --border.foreground 99
+
+        echo ""
+
+        # Commands table
+        gum style --foreground 214 --bold "Commands ($cmd_count source files)"
+        printf "%s\n" \
+            "Agent,Synced,Excluded,Has Skill,Pruned" \
+            "Claude,$CLAUDE_CMDS_SYNCED,$CLAUDE_CMDS_EXCLUDED,$CLAUDE_CMDS_SKILL_SKIP,$CLAUDE_CMDS_PRUNED" \
+            "Codex,$CODEX_CMDS_SYNCED,$CODEX_CMDS_EXCLUDED,$CODEX_CMDS_SKILL_SKIP,$CODEX_CMDS_PRUNED" \
+            "Gemini,$GEMINI_CMDS_SYNCED,$GEMINI_CMDS_EXCLUDED,$GEMINI_CMDS_SKILL_SKIP,$GEMINI_CMDS_PRUNED" \
+            | gum table --print --border.foreground 99
+
+        echo ""
+
+        # Totals
+        local total_skills=$(( CLAUDE_SKILLS_NEW + CLAUDE_SKILLS_UPDATED + \
+                               AGENTS_SKILLS_NEW + AGENTS_SKILLS_UPDATED ))
+        local total_cmds=$(( CLAUDE_CMDS_SYNCED + CODEX_CMDS_SYNCED + GEMINI_CMDS_SYNCED ))
+
+        gum style \
+            --border rounded \
+            --border-foreground 82 \
+            --padding "0 2" \
+            --foreground 82 \
+            "✓ $total_skills skill syncs across 2 destinations" \
+            "✓ $total_cmds command syncs across 3 agents"
+    else
+        # Fallback ASCII table
+        local total_skills_new=$(( CLAUDE_SKILLS_NEW + AGENTS_SKILLS_NEW ))
+        local total_skills_updated=$(( CLAUDE_SKILLS_UPDATED + AGENTS_SKILLS_UPDATED ))
+        local total_skills_pruned=$(( CLAUDE_SKILLS_PRUNED + AGENTS_SKILLS_PRUNED ))
+        local total_cmds=$(( CLAUDE_CMDS_SYNCED + CODEX_CMDS_SYNCED + GEMINI_CMDS_SYNCED ))
+
+        echo -e "${BOLD}${MAGENTA}📊 SYNC SUMMARY${NC}"
+        echo ""
+        echo -e "${BOLD}${YELLOW}Skills ($skill_count source)${NC}"
+        echo "┌─────────┬─────┬─────────┬────────┐"
+        echo "│ Dest    │ New │ Updated │ Pruned │"
+        echo "├─────────┼─────┼─────────┼────────┤"
+        printf "│ %-7s │ %3d │ %7d │ %6d │\n" "Claude" "$CLAUDE_SKILLS_NEW" "$CLAUDE_SKILLS_UPDATED" "$CLAUDE_SKILLS_PRUNED"
+        printf "│ %-7s │ %3d │ %7d │ %6d │\n" "Agents" "$AGENTS_SKILLS_NEW" "$AGENTS_SKILLS_UPDATED" "$AGENTS_SKILLS_PRUNED"
+        echo "├─────────┼─────┼─────────┼────────┤"
+        printf "│ ${BOLD}%-7s${NC} │ ${BOLD}%3d${NC} │ ${BOLD}%7d${NC} │ ${BOLD}%6d${NC} │\n" "Total" "$total_skills_new" "$total_skills_updated" "$total_skills_pruned"
+        echo "└─────────┴─────┴─────────┴────────┘"
+        echo ""
+        echo -e "${BOLD}${YELLOW}Commands ($cmd_count source)${NC}"
+        echo "┌─────────┬────────┬──────────┬───────────┬────────┐"
+        echo "│ Agent   │ Synced │ Excluded │ Has Skill │ Pruned │"
+        echo "├─────────┼────────┼──────────┼───────────┼────────┤"
+        printf "│ %-7s │ %6d │ %8d │ %9d │ %6d │\n" "Claude" "$CLAUDE_CMDS_SYNCED" "$CLAUDE_CMDS_EXCLUDED" "$CLAUDE_CMDS_SKILL_SKIP" "$CLAUDE_CMDS_PRUNED"
+        printf "│ %-7s │ %6d │ %8d │ %9d │ %6d │\n" "Codex" "$CODEX_CMDS_SYNCED" "$CODEX_CMDS_EXCLUDED" "$CODEX_CMDS_SKILL_SKIP" "$CODEX_CMDS_PRUNED"
+        printf "│ %-7s │ %6d │ %8d │ %9d │ %6d │\n" "Gemini" "$GEMINI_CMDS_SYNCED" "$GEMINI_CMDS_EXCLUDED" "$GEMINI_CMDS_SKILL_SKIP" "$GEMINI_CMDS_PRUNED"
+        echo "├─────────┼────────┼──────────┼───────────┼────────┤"
+        printf "│ ${BOLD}%-7s${NC} │ ${BOLD}%6d${NC} │          │           │        │\n" "Total" "$total_cmds"
+        echo "└─────────┴────────┴──────────┴───────────┴────────┘"
+
+        echo ""
+        echo -e "${GREEN}╭────────────────────────────────────────────────╮${NC}"
+        echo -e "${GREEN}│${NC}  ${BOLD}✓${NC} $total_skills_updated skill syncs across 2 dests      ${GREEN}│${NC}"
+        echo -e "${GREEN}│${NC}  ${BOLD}✓${NC} $total_cmds command syncs across 3 agents    ${GREEN}│${NC}"
+        echo -e "${GREEN}╰────────────────────────────────────────────────╯${NC}"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+main() {
+    check_gum || true
+
+    DRY_RUN=false
+    PRUNE=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --help|-h)
+                show_help
+                exit 0
+                ;;
+            --dry-run|-n)
+                DRY_RUN=true
+                shift
+                ;;
+            --prune)
+                PRUNE=true
+                shift
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                echo "Usage: sync-all [--dry-run] [--prune] [--help]" >&2
+                exit 1
+                ;;
+            *)
+                log_error "Unexpected argument: $1"
+                exit 1
+                ;;
+        esac
+    done
+
+    if [[ ! -d "$SKILLS_SRC" ]]; then
+        log_error "Skills source not found: $SKILLS_SRC"
+        exit 1
+    fi
+
+    if [[ ! -d "$COMMANDS_SRC" ]]; then
+        log_error "Commands source not found: $COMMANDS_SRC"
+        exit 1
+    fi
+
+    # Create destination directories
+    mkdir -p "$CLAUDE_SKILLS_DEST" "$AGENTS_SKILLS_DEST"
+    mkdir -p "$CLAUDE_COMMANDS_DEST" "$CODEX_COMMANDS_DEST" "$GEMINI_COMMANDS_DEST"
+
+    # Collect skill names
+    collect_skill_names
+    local skill_count=${#SKILL_NAMES[@]}
+
+    # Count commands
+    shopt -s nullglob
+    local cmd_files=("$COMMANDS_SRC"/*.md)
+    shopt -u nullglob
+    local cmd_count=${#cmd_files[@]}
+
+    print_banner
+
+    if $DRY_RUN; then
+        log_info "[DRY RUN] Would sync $skill_count skills and $cmd_count commands"
+    else
+        log_info "Syncing $skill_count skills and $cmd_count commands"
+    fi
+    log_step "Skills: $SKILLS_SRC"
+    log_step "Commands: $COMMANDS_SRC"
+    echo ""
+
+    # Sync skills
+    sync_skills_to_dest "$CLAUDE_SKILLS_DEST" "Claude"
+    sync_skills_to_dest "$AGENTS_SKILLS_DEST" "Agents"
+
+    # Sync commands (Claude applies exclusions, others don't)
+    sync_commands_to_dest "$CLAUDE_COMMANDS_DEST" "Claude" true
+    sync_commands_to_dest "$CODEX_COMMANDS_DEST" "Codex" false
+    sync_commands_to_dest "$GEMINI_COMMANDS_DEST" "Gemini" false
+
+    # Print summary table
+    print_summary_table "$skill_count" "$cmd_count"
+
+    echo ""
+    if $DRY_RUN; then
+        log_info "[DRY RUN] No changes made"
+    else
+        log_success "All skills and commands synced!"
+    fi
+}
+
+main "$@"
