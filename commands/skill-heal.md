@@ -5,3 +5,4 @@ argument-hint:
 ---
 
 Use the `skill-heal` skill for this command and follow its instructions.
+Pass command arguments through to the skill as: `$ARGUMENTS`.

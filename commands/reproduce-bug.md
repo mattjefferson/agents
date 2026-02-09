@@ -4,3 +4,4 @@ argument-hint: "[GitHub issue number]"
 ---
 
 Use the `reproduce-bug` skill for this command and follow its instructions.
+Pass command arguments through to the skill as: `$ARGUMENTS`.

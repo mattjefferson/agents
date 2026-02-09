@@ -203,9 +203,9 @@ Complete system context map with component interactions
 
 Run the Task review-code-simplicity() to see if we can simplify the code.
 
-### 5. Findings Synthesis and Task Creation Using tasks-router Skill
+### 5. Findings Synthesis and Task Creation Using Tasks Core
 
-<critical_requirement> ALL findings MUST be stored using the tasks-router skill. It selects tasks-file (tasks/ directory) or tasks-beads (.beads/) based on the repo. Create tasks immediately after synthesis - do NOT present findings for user approval first. </critical_requirement>
+<critical_requirement> ALL findings MUST be stored using the `tasks-core` skill via `/tasks` operations. It auto-detects and validates the backend. Create tasks immediately after synthesis - do NOT present findings for user approval first. </critical_requirement>
 
 #### Step 1: Synthesize All Findings
 
@@ -217,7 +217,7 @@ Remove duplicates, prioritize by severity and impact.
 <synthesis_tasks>
 
 - [ ] Collect findings from all parallel agents
-- [ ] Discard any findings that recommend deleting or gitignoring files in `docs/plans/` or `docs/solutions/` (see Protected Artifacts above)
+- [ ] Discard any findings that recommend deleting or gitignoring files in `docs/plans/` or `~/docs/solutions/` (see Protected Artifacts above)
 - [ ] Categorize by type: security, performance, architecture, quality, etc.
 - [ ] Assign severity levels: 🔴 CRITICAL (P1), 🟡 IMPORTANT (P2), 🔵 NICE-TO-HAVE (P3)
 - [ ] Remove duplicate or overlapping findings
@@ -225,9 +225,9 @@ Remove duplicates, prioritize by severity and impact.
 
 </synthesis_tasks>
 
-#### Step 2: Create Tasks Using tasks-router 
+#### Step 2: Create Tasks Using `/tasks`
 
-<critical_instruction> Use the tasks-router skill to create tasks for ALL findings immediately. Do NOT present findings one-by-one asking for user approval. Create all tasks in parallel using the skill, then summarize results to user. </critical_instruction>
+<critical_instruction> Use `/tasks` (backed by `tasks-core`) to create tasks for ALL findings immediately. Do NOT present findings one-by-one asking for user approval. Create all tasks in parallel, then summarize results to user. </critical_instruction>
 
 **Implementation Options:**
 
@@ -235,14 +235,12 @@ Remove duplicates, prioritize by severity and impact.
 
 - Create tasks directly using the selected system
 - All findings in parallel for speed
-- If tasks-file: use standard template from `../tasks-file/assets/task-template.md`
-- If tasks-file: follow naming convention `{issue_id}-pending-{priority}-{description}.md`
-- If tasks-beads: use `br create --json` + `br update --design/--notes/--acceptance-criteria --json`
+- Follow the `tasks-core` contract and normalized output.
 
 **Option B: Subagents in Parallel (Recommended for Scale)** For large PRs with 15+ findings, use subagents to create finding files in parallel:
 
 ```bash
-# Launch multiple tasks-router in parallel
+# Launch multiple tasks in parallel
 - Create tasks for first finding
 - Create tasks for second finding
 - Create tasks for third finding
@@ -263,10 +261,10 @@ Subagents can:
 1. Synthesize all findings into categories (P1/P2/P3)
 2. Group findings by severity
 3. Launch 3 parallel subagents (one per severity level)
-4. Each subagent creates its batch of tasks using the tasks-router skill
+4. Each subagent creates its batch of tasks using `/tasks`
 5. Consolidate results and present summary
 
-**Process (Using tasks-router Skill):**
+**Process (Using `/tasks`):**
 
 1. For each finding:
 
@@ -276,41 +274,25 @@ Subagents can:
    - Estimate effort (Small/Medium/Large)
    - Add acceptance criteria and work log
 
-2. Use tasks-router skill for structured task management:
+2. Use `/tasks` for structured task management:
 
    ```bash
-   skill: tasks-router
+   /tasks detect
+   /tasks create --title "..." --priority "P1|P2|P3" --type "bug|feature|task|docs|question|epic" --description "..."
+   /tasks update --id <id> --notes "Findings and technical details" --acceptance-criteria "- [ ] ..."
    ```
 
-   The skill provides:
+   `tasks-core` provides routing, naming/field mapping, and backend-specific persistence.
 
-   - If tasks-file: template location `../tasks-file/assets/task-template.md`
-   - If tasks-file: naming convention `{issue_id}-{status}-{priority}-{description}.md`
-   - If tasks-file: YAML frontmatter structure, required sections
-   - If tasks-beads: use `br create --json`, `br update --design --json` (solutions/technical details), `br update --notes --json` (findings/resources), `br update --acceptance-criteria --json`, and comments for work log
+3. Create tasks in parallel and capture returned IDs in your summary.
 
-3. Create task files in parallel:
+4. Follow `tasks-core` for backend-specific template structure and field mapping.
 
-   ```bash
-   {next_id}-pending-{priority}-{description}.md
-   ```
-
-4. Examples:
-
-   ```
-   001-pending-p1-path-traversal-vulnerability.md
-   002-pending-p1-api-response-validation.md
-   003-pending-p2-concurrency-limit.md
-   004-pending-p3-unused-parameter.md
-   ```
-
-5. If tasks-file, follow template structure from `../tasks-file/assets/task-template.md`. If tasks-beads, map sections to Beads fields.
-
-**Task File Structure (from template):**
+**Task Structure (normalized across backends):**
 
 Each task must include:
 
-- **YAML frontmatter**: status, priority, issue_id, tags, dependencies
+- **Identity/metadata**: backend task ID, status, priority, tags, dependencies
 - **Problem Statement**: What's broken/missing, why it matters
 - **Findings**: Discoveries from agents with evidence/location
 - **Proposed Solutions**: 2-3 options, each with pros/cons/effort/risk
@@ -320,18 +302,7 @@ Each task must include:
 - **Work Log**: Dated record with actions and learnings
 - **Resources**: Links to PR, issues, documentation, similar patterns
 
-If tasks-beads is selected, map these sections to Beads fields (see tasks-beads skill).
-
-**File naming convention:**
-
-```
-{issue_id}-{status}-{priority}-{description}.md
-
-Examples:
-- 001-pending-p1-security-vulnerability.md
-- 002-pending-p2-performance-optimization.md
-- 003-pending-p3-code-cleanup.md
-```
+Use backend-specific field mapping through `tasks-core` and its backend guides.
 
 **Status values:**
 
@@ -341,15 +312,13 @@ Examples:
 
 **Priority values:**
 
-- `p1` - Critical (blocks merge, security/data issues)
-- `p2` - Important (should fix, architectural/performance)
-- `p3` - Nice-to-have (enhancements, cleanup)
+- `P1/P2/P3` at input level; `tasks-core` maps to backend-specific values.
 
 **Tagging:** Always add `code-review` tag, plus: `security`, `performance`, `architecture`, `rails`, `quality`, etc.
 
 #### Step 3: Summary Report
 
-After creating all task files, present comprehensive summary:
+After creating all tasks, present comprehensive summary:
 
 ````markdown
 ## ✅ Code Review Complete
@@ -363,22 +332,19 @@ After creating all task files, present comprehensive summary:
 - **🟡 IMPORTANT (P2):** [count] - Should Fix
 - **🔵 NICE-TO-HAVE (P3):** [count] - Enhancements
 
-### Created Tasks:
+### Created Tasks (via `/tasks`):
 
 **P1 - Critical (BLOCKS MERGE):**
 
-- `001-pending-p1-{finding}.md` - {description} (tasks-file)
-- `Issue #123` - {description} (tasks-beads)
+- `{task-id}` - {description}
 
 **P2 - Important:**
 
-- `003-pending-p2-{finding}.md` - {description} (tasks-file)
-- `Issue #124` - {description} (tasks-beads)
+- `{task-id}` - {description}
 
 **P3 - Nice-to-Have:**
 
-- `005-pending-p3-{finding}.md` - {description} (tasks-file)
-- `Issue #125` - {description} (tasks-beads)
+- `{task-id}` - {description}
 
 ### Review Agents Used:
 
@@ -399,7 +365,7 @@ After creating all task files, present comprehensive summary:
 
 2. **Triage All Tasks**:
    ```bash
-   /triage  # Uses tasks-router and routes to tasks-file or tasks-beads
+   /triage  # Uses /tasks operations through tasks-core routing
    ```
 ````
 
@@ -410,9 +376,9 @@ After creating all task files, present comprehensive summary:
    ```
 
 4. **Track Progress**:
-   - If tasks-file: rename file when status changes: pending → ready → complete
-   - If tasks-beads: update status with `br update --json` and add work log comments
-   - Commit tasks: `git add tasks/` (tasks-file) or `br sync --flush-only --json && git add .beads/` (tasks-beads)
+   - Use `/tasks claim --id <id>` before implementation
+   - Use `/tasks update --id <id> ...` for work-log notes and status details
+   - Use `/tasks close --id <id> --reason "Completed"` to resolve
 
 ### Severity Breakdown:
 
@@ -445,11 +411,16 @@ After creating all task files, present comprehensive summary:
 
 **First, detect the project type from PR files:**
 
-| Indicator | Project Type |
+| Indicator (examples in changed files) | Project Type |
 |-----------|--------------|
-| `*.xcodeproj`, `*.xcworkspace`, `Package.swift` (iOS) | iOS/macOS |
-| `Gemfile`, `package.json`, `app/views/*`, `*.html.*` | Web |
-| Both iOS files AND web files | Hybrid (test both) |
+| `package.json`, `bun.lockb`, `pnpm-lock.yaml`, `yarn.lock`, frontend paths (`app/views/*`, `src/pages/*`, `app/*`, `public/*`), UI files (`*.tsx`, `*.jsx`, `*.html.*`, `*.css`, `*.scss`) | Web |
+| iOS app signals such as `*.xcodeproj`, `*.xcworkspace`, iOS simulator/build changes, UIKit/SwiftUI mobile flows | iOS |
+| Native macOS desktop app signals such as AppKit/NSWindow menu/window interactions, desktop app targets, macOS UI flows | macOS Native |
+| `go.mod`, `pyproject.toml`, `requirements*.txt`, `Cargo.toml`, backend paths (`api/*`, `server/*`, `services/*`, `internal/*`, `cmd/*`), files (`*.go`, `*.py`, `*.rs`, `*.rb`) | Backend/API |
+| `scripts/*.sh`, `Makefile`, `.github/workflows/*`, infra/config-heavy PRs with no UI/mobile indicators | CLI/Infra |
+| Signals from 2+ types above (for example Web + Backend, iOS + Backend, Web + iOS, macOS + Backend) | Hybrid |
+
+If multiple categories are touched, treat it as `Hybrid` and offer each relevant test path.
 
 </detect_project_type>
 
@@ -471,13 +442,36 @@ After presenting the Summary Report, offer appropriate testing based on project 
 2. No - skip
 ```
 
-**For Hybrid Projects:**
+**For macOS Native Projects:**
+```markdown
+**"Want to run native macOS UI tests on the desktop app?"**
+1. Yes - run `/test-mac`
+2. No - skip
+```
+
+**For Backend/API Projects:**
+```markdown
+**"Want to run backend verification for the affected services?"**
+1. Yes - run repo-native targeted tests/checks for changed language areas (Python/Go/Rust/Ruby/TS) or `/prove-it`
+2. No - skip
+```
+
+**For CLI/Infra Projects:**
+```markdown
+**"Want to run CLI/infra verification on changed commands and automation?"**
+1. Yes - run command smoke tests (and `/prove-it` when useful)
+2. No - skip
+```
+
+**For Hybrid Projects (choose based on touched combination):**
 ```markdown
 **"Want to run end-to-end tests?"**
 1. Web only - run `/test-browser`
 2. iOS only - run `/test-xcode`
-3. Both - run both commands
-4. No - skip
+3. macOS only - run `/test-mac`
+4. Backend/CLI only - run repo-native tests/checks or `/prove-it`
+5. All relevant paths - run all applicable options
+6. No - skip
 ```
 
 </offer_testing>
@@ -521,6 +515,57 @@ The subagent will:
 9. Fix and retry until all tests pass
 
 **Standalone:** `/test-xcode [scheme]`
+
+#### If User Accepts macOS Native Testing:
+
+Spawn a subagent to run native macOS tests (preserves main context):
+
+```
+Task general-purpose("Run /test-mac for the affected desktop app flows. Use Peekaboo to validate windows/menus/interactions, capture artifacts, and create tasks for failures.")
+```
+
+The subagent will:
+1. Verify Peekaboo is installed with required permissions
+2. Resolve target app/window and capture baseline UI
+3. Run key desktop flows (navigation, primary action, settings, close/reopen)
+4. Capture screenshots/annotated artifacts for each major step
+5. Create P1 tasks for critical failures and retry when fixes are applied
+
+**Standalone:** `/test-mac [app name|bundle id|frontmost]`
+
+#### If User Accepts Backend/API Verification:
+
+Spawn a subagent to run backend verification (preserves main context):
+
+```
+Task general-purpose("Run backend verification for PR #[number]. Detect changed backend languages and modules, run targeted tests/checks, inspect failures, create tasks for issues, and re-run until passing.")
+```
+
+The subagent will:
+1. Identify changed backend languages and services (Python, Go, Rust, Ruby, TypeScript/Node)
+2. Run targeted tests/checks for touched areas using repo-native commands
+3. Use `/prove-it` when command selection is ambiguous or cross-service validation is needed
+4. Capture errors/logs and create P1 tasks for critical failures
+5. Fix and retry until checks pass or blockers are clearly documented
+
+**Standalone:** `/prove-it [feature-or-change]`
+
+#### If User Accepts CLI/Infra Verification:
+
+Spawn a subagent to run CLI/infra verification (preserves main context):
+
+```
+Task general-purpose("Run CLI/infra verification for PR #[number]. Smoke test changed commands/scripts, validate CI/workflow-impacting changes, capture failures, and iterate to green.")
+```
+
+The subagent will:
+1. Identify changed scripts, command entry points, and CI/workflow files
+2. Run smoke tests for changed commands with realistic arguments
+3. Validate critical automation paths impacted by the PR
+4. Capture failures and create P1 tasks for critical breakages
+5. Fix and retry until checks pass or remaining risk is explicit
+
+**Standalone:** `/prove-it [feature-or-change]`
 
 ### Important: P1 Findings Block Merge
 

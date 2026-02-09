@@ -4,4 +4,4 @@ argument-hint: "[PR number, GitHub URL, branch name, or latest]"
 ---
 
 Use the `workflows-review` skill for this command and follow its instructions.
-
+Pass command arguments through to the skill as: `$ARGUMENTS`.

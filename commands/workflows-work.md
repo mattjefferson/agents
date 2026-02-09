@@ -4,3 +4,4 @@ argument-hint: "[plan file, specification, or todo file path]"
 ---
 
 Use the `workflows-work` skill for this command and follow its instructions.
+Pass command arguments through to the skill as: `$ARGUMENTS`.

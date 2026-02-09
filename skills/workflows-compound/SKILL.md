@@ -12,7 +12,7 @@ Coordinate multiple subagents working in parallel to document a recently solved 
 
 ## Purpose
 
-Captures problem solutions while context is fresh, creating structured documentation in `docs/solutions/` with YAML frontmatter for searchability and future reference. Uses parallel subagents for maximum efficiency.
+Captures problem solutions while context is fresh, creating structured documentation in `~/docs/solutions/` with YAML frontmatter for searchability and future reference. Uses parallel subagents for maximum efficiency.
 
 **Why "compound"?** Each documented solution compounds your team's knowledge. The first time you solve a problem takes research. Document it, and the next occurrence takes minutes. Knowledge compounds.
 
@@ -23,54 +23,82 @@ Captures problem solutions while context is fresh, creating structured documenta
 /workflows-compound [brief context]    # Provide additional context hint
 ```
 
-## Execution Strategy: Parallel Subagents
+## Execution Strategy: Two-Phase Orchestration
 
-This command launches multiple specialized subagents IN PARALLEL to maximize efficiency:
+<critical_requirement>
+**Only ONE file gets written - the final documentation.**
 
-### 1. **Context Analyzer** (Parallel)
+Phase 1 subagents return TEXT DATA to the orchestrator. They must NOT use Write, Edit, or create any files. Only the orchestrator (Phase 2) writes the final documentation file.
+</critical_requirement>
+
+<parallel_tasks>
+
+Launch these subagents IN PARALLEL. Each returns text data to the orchestrator.
+
+### 1. **Context Analyzer**
    - Extracts conversation history
    - Identifies problem type, component, symptoms
    - Validates against solution schema
    - Returns: YAML frontmatter skeleton
 
-### 2. **Solution Extractor** (Parallel)
+### 2. **Solution Extractor**
    - Analyzes all investigation steps
    - Identifies root cause
    - Extracts working solution with code examples
    - Returns: Solution content block
 
-### 3. **Related Docs Finder** (Parallel)
+### 3. **Related Docs Finder** 
    - Searches `docs/solutions/` for related documentation
    - Identifies cross-references and links
    - Finds related GitHub issues
    - Returns: Links and relationships
 
-### 4. **Prevention Strategist** (Parallel)
+### 4. **Prevention Strategist**
    - Develops prevention strategies
    - Creates best practices guidance
    - Generates test cases if applicable
    - Returns: Prevention/testing content
 
-### 5. **Category Classifier** (Parallel)
-   - Determines optimal `docs/solutions/` category
+### 5. **Category Classifier**
+   - Determines optimal `~/docs/solutions/` category
    - Validates category against schema
    - Suggests filename based on slug
    - Returns: Final path and filename
 
-### 6. **Documentation Writer** (Parallel)
-   - Assembles complete markdown file
-   - Validates YAML frontmatter
-   - Formats content for readability
-   - Creates the file in correct location
+</parallel_tasks>
 
-### 7. **Optional: Specialized Agent Invocation** (Post-Documentation)
-   Based on problem type detected, automatically invoke applicable agents:
-   - **performance_issue** → `analyze-performance`
+### Phase 2: Assembly & Write
+
+<sequential_tasks>
+
+**WAIT for all Phase 1 subagents to complete before proceeding.**
+
+The orchestrating agent (main conversation) performs these steps:
+
+1. Collect all text results from Phase 1 subagents
+2. Assemble complete markdown file from the collected pieces
+3. Validate YAML frontmatter against schema
+4. Create directory if needed: `mkdir -p docs/solutions/[category]/`
+5. Write the SINGLE final file: `~/docs/solutions/[category]/[filename].md`
+
+</sequential_tasks>
+
+### Phase 3: Optional Enhancement
+
+**WAIT for Phase 2 to complete before proceeding.**
+
+<parallel_tasks>
+
+Based on problem type, optionally invoke specialized agents to review the documentation:
+
+ - **performance_issue** → `analyze-performance`
    - **dependency_issue** → `analyze-dependencies`
   - **security_issue** → `review-security`
    - **database_issue** → `review-data-integrity`
    - **test_failure** → `review-test-quality`
    - Any code-heavy issue → `review-typescript` + `review-code-simplicity`
+
+</parallel_tasks>
 
 ## What It Captures
 
@@ -99,7 +127,7 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
 
 **Organized documentation:**
 
-- File: `docs/solutions/[category]/[filename].md`
+- File: `~/docs/solutions/[category]/[filename].md`
 
 **Categories auto-detected from problem:**
 
@@ -111,25 +139,32 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
 - security-issues/
 - ui-bugs/
 - integration-issues/
-- logic-errors/
+- logic-errors/ 
+
+## Common Mistakes to Avoid
+
+| ❌ Wrong | ✅ Correct |
+|----------|-----------|
+| Subagents write files like `context-analysis.md`, `solution-draft.md` | Subagents return text data; orchestrator writes one final file |
+| Research and assembly run in parallel | Research completes → then assembly runs |
+| Multiple files created during workflow | Single file: `~/docs/solutions/[category]/[filename].md` |
 
 ## Success Output
 
 ```
-✓ Parallel documentation generation complete
+✓ Documentation complete
 
-Primary Subagent Results:
+Subagent Results:
   ✓ Context Analyzer: Identified performance_issue in brief_system
-  ✓ Solution Extractor: Extracted 3 code fixes
-  ✓ Related Docs Finder: Found 2 related issues
-  ✓ Prevention Strategist: Generated test cases
-  ✓ Category Classifier: docs/solutions/performance-issues/
-  ✓ Documentation Writer: Created complete markdown
+  ✓ Solution Extractor: 3 code fixes
+  ✓ Related Docs Finder: 2 related issues
+  ✓ Prevention Strategist: Prevention strategies, test suggestions
+  ✓ Category Classifier: `performance-issues`
 
 Specialized Agent Reviews (Auto-Triggered):
   ✓ analyze-performance: Validated query optimization approach
   ✓ review-code-simplicity: Solution is appropriately minimal
-  ✓ matts-style-editor: Documentation style verified
+  ✓ style-editor: Documentation style verified
 
 File created:
 - docs/solutions/performance-issues/n-plus-one-brief-generation.md
@@ -190,7 +225,7 @@ Based on problem type, these agents can enhance documentation:
 
 ### Enhancement & Documentation
 - **research-best-practices**: Enriches solution with industry best practices
-- **matts-style-editor**: Reviews documentation style and clarity
+- **style-editor**: Reviews documentation style and clarity
 - **framework-docs-researcher**: Links to Rails/gem documentation references
 
 ### When to Invoke

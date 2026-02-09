@@ -1,11 +1,39 @@
 ---
-description: 'Idea Wizard'
-read_when:
-  - Creating a /idea-wizard prompt or refining wizard format.
+name: idea-wizard
+description: Generate and ruthlessly filter ideas for improving the project
+argument-hint: "[optional: area to focus on]"
 ---
-Purpose: Come up with your very best ideas for improving this project
 
-Steps:
-1) First generate a list of 30 ideas (brief one-liner for each).
-2) Then go through each one systematically and critically evaluate it, rejecting the ones that are not excellent choices for good reasons and keeping the ones that pass your scrutiny.
-3) Then, for each idea that passed your test, explain in detail exactly what the idea is (in the form of a concrete, specific, actionable plan with detailed code snippets where relevant), why it would be a good improvement, what are the possible downsides, and how confident you are that it actually improves the project (0-100%). 
+Come up with your very best ideas for improving this project.
+
+## Step 1: Understand the landscape
+
+Use subagents to explore the project in parallel — one for AGENTS.md and conventions, others for key directories and patterns. Your ideas must be grounded in what actually exists, not generic suggestions.
+
+If `$ARGUMENTS` specifies a focus area, constrain exploration and brainstorming to that domain.
+
+## Step 2: Brainstorm 30 ideas
+
+Generate 30 ideas as brief one-liners. Cast a wide net — quantity first, quality later. Number them.
+
+## Step 3: Ruthless filter
+
+Go through each idea and critically evaluate it. Kill anything that:
+
+- Is vague or generic ("improve error handling")
+- Adds complexity without proportional value
+- Duplicates something that already exists
+- Conflicts with project conventions
+
+For each rejected idea, state the reason in one line. Keep only the ideas that survive genuine scrutiny.
+
+## Step 4: Deep dive on survivors
+
+Spawn one subagent per surviving idea to research feasibility in parallel. Each subagent should explore the relevant code area and provide:
+
+- **What**: Concrete, specific, actionable description with code snippets where relevant
+- **Why**: What improvement it delivers and for whom
+- **Downsides**: Honest risks or tradeoffs
+- **Confidence**: 0–100% that it actually improves the project
+
+Sort survivors by confidence, highest first.

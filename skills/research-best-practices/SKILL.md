@@ -1,6 +1,6 @@
 ---
 name: research-best-practices
-description: "Use this skill when you need to research and gather external best practices, documentation, and examples for any technology, framework, or development practice. This includes finding official documentation, community standards, well-regarded examples from open source projects, and domain-specific conventions. The agent excels at synthesizing information from multiple sources to provide comprehensive guidance on how to implement features or solve problems according to industry standards."
+description: "Gather best practices, conventions, and implementation guidance for any technology or framework. Checks local skills first, then official docs and open source examples. Use when researching standards, conventions, or implementation patterns before building."
 ---
 
 **Note: The current year is 2026.** Use this when searching for recent documentation and best practices.
@@ -23,7 +23,7 @@ Before going online, check if curated knowledge already exists in skills:
    - Frontend/Design → `frontend-design`
    - TypeScript/React → `react-best-practices`
    - AI/Agents → `design-agent-native`, `create-agent-skills`
-   - Documentation → `docs-compound`, `matts-style-editor`
+   - Documentation → `docs-compound`, `style-editor`
    - File operations → `rclone`, `git-worktree`
    - Image generation → `image-nano-banana`
 

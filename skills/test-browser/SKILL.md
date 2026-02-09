@@ -235,7 +235,7 @@ When a test fails:
 
    How to proceed?
    1. Fix now - I'll help debug and fix
-   2. Create task - Use tasks-router (tasks-file or tasks-beads)
+   2. Create task - Use `/tasks` (tasks-core routing)
    3. Skip - Continue testing other pages
    ```
 
@@ -246,9 +246,10 @@ When a test fails:
    - Re-run the failing test
 
 4. **If "Create task":**
-   - Use tasks-router to select the system
-   - If tasks-file: create `{id}-pending-p1-browser-test-{description}.md`
-   - If tasks-beads: `br create --title="Browser test: {description}" --type=bug --priority=P1 --description="..." --json` and add notes if needed (use type mapping from tasks-beads)
+   - Route through `/tasks`:
+     - `/tasks detect`
+     - `/tasks create --title "Browser test: {description}" --type bug --priority P1 --description "..."`
+     - `/tasks update --id <id> --notes "Browser route + repro steps + errors" --acceptance-criteria "- [ ] Repro fixed"`
    - Continue testing
 
 5. **If "Skip":**
@@ -289,8 +290,7 @@ After all tests complete, present summary:
 - `/dashboard` - [issue description]
 
 ### Created Tasks: [count]
-- `005-pending-p1-browser-test-dashboard-error.md` (tasks-file)
-- Issue #105 (tasks-beads)
+- `{task-id}` - Browser test failure task (created via `/tasks`)
 
 ### Result: [PASS / FAIL / PARTIAL]
 ```

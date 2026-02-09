@@ -1,6 +1,6 @@
 ---
 name: research
-description: "Technical research methodology with YAGNI/KISS/DRY principles. Phases: scope definition, information gathering, analysis, synthesis, recommendation. Capabilities: technology evaluation, architecture analysis, best practices research, trade-off assessment, solution design. Actions: research, analyze, evaluate, compare, recommend technical solutions. Keywords: research, technology evaluation, best practices, architecture analysis, trade-offs, scalability, security, maintainability, YAGNI, KISS, DRY, technical analysis, solution design, competitive analysis, feasibility study. Use when: researching technologies, evaluating architectures, analyzing best practices, comparing solutions, assessing technical trade-offs, planning scalable/secure systems."
+description: "Systematic technical research following YAGNI/KISS/DRY. Scopes, gathers, analyzes, and synthesizes findings into actionable reports in docs/research/. Use when evaluating technologies, analyzing architectures, assessing trade-offs, or conducting feasibility studies."
 license: MIT
 ---
 

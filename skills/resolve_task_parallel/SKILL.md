@@ -1,49 +1,66 @@
 ---
 name: resolve_task_parallel
-description: Resolve all pending CLI tasks using parallel processing
+description: Resolve pending tasks in parallel using the unified tasks contract
 ---
 
 ## Arguments
 [optional: specific task ID or pattern]
 
-Resolve tasks from the configured task system in parallel.
+Resolve tasks from the configured backend in parallel.
 
 ## Workflow
 
-### 1. Analyze
+### 1. Detect and Load Tasks
 
-Use tasks-router to select the task system.
+Run backend detection first:
 
-- If tasks-file: get unresolved tasks from `tasks/*.md`
-- If tasks-beads: use `br list --status=open --json` or `br ready --json`
+```bash
+/tasks detect
+```
 
-If any task recommends deleting, removing, or gitignoring files in `docs/plans/` or `docs/solutions/`, skip it and mark it as `wont_fix`. These are workflow pipeline artifacts that are intentional and permanent.
+Load candidate tasks through the unified interface:
 
+```bash
+/tasks list --status pending
+/tasks list --status ready
+```
 
-### 2. Plan
+Apply argument filters if provided.
 
-Create a TodoWrite list (Claude) / update_plan list (Codex) of all unresolved tasks grouped by type. Identify dependencies and order the prerequisites first (for example, rename changes before usages). Output a mermaid flow diagram that shows what can run in parallel vs what must run sequentially.
+If any task recommends deleting, removing, or gitignoring files in `docs/plans/` or `docs/solutions/`, skip it and mark as `wont_fix`.
 
-### 3. Claim (Before Parallel Work)
+### 2. Plan Parallel Execution
 
-- If tasks-beads: claim each task before starting: `br update <id> --claim --json`
-  This sets `status=in_progress` and `assignee=<actor>` atomically.
+- Create a TodoWrite list (Claude) / update_plan list (Codex) grouped by type and dependencies.
+- Identify prerequisite tasks and execution order.
+- Output a mermaid flow showing parallel vs sequential work.
 
-### 4. Implement (PARALLEL)
+### 3. Claim Before Work
 
-Spawn one subagent per unresolved task item, in parallel. Each subagent should receive the specific task content and the expected outcome.
+Claim each selected task before implementation:
 
-Example with 3 task items:
+```bash
+/tasks claim --id <id>
+```
 
-1. Subagent for task1
-2. Subagent for task2
-3. Subagent for task3
+### 4. Implement in Parallel
 
-Always run one subagent per unresolved task item, in parallel.
+Spawn one subagent per selected task.
 
-### 5. Commit & Resolve
+Each subagent gets:
+- Task ID
+- Expected outcome
+- Acceptance criteria
+- Constraints
 
-- Commit changes
-- If tasks-file: update the task file and mark it resolved
-- If tasks-beads: close the issue with `br close <id> --reason="Completed" --json`
-- Push to remote (when appropriate)
+### 5. Resolve and Close
+
+After work is complete:
+
+```bash
+/tasks update --id <id> --notes "Work summary, file refs, test results"
+/tasks close --id <id> --reason "Completed"
+```
+
+- Commit changes.
+- Push when appropriate.

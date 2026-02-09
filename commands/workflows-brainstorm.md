@@ -4,3 +4,4 @@ argument-hint: "[feature idea or problem to explore]"
 ---
 
 Use the `workflows-brainstorm` skill for this command and follow its instructions.
+Pass command arguments through to the skill as: `$ARGUMENTS`.

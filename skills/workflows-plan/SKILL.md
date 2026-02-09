@@ -22,15 +22,16 @@ Do not proceed until you have a clear feature description from the user.
 
 ### 0. Idea Refinement
 
-**Check for brainstorm output first:**
+**Check for brainstorm and spike output first:**
 
-Before asking questions, look for recent brainstorm documents in `docs/brainstorms/` that match this feature:
+Before asking questions, look for recent brainstorm and spike documents that match this feature:
 
 ```bash
 ls -la docs/brainstorms/*.md 2>/dev/null | head -10
+ls -la docs/spikes/*.md 2>/dev/null | head -10
 ```
 
-**Relevance criteria:** A brainstorm is relevant if:
+**Relevance criteria:** A brainstorm or spike is relevant if:
 - The topic (from filename or YAML frontmatter) semantically matches the feature description
 - Created within the last 14 days
 - If multiple candidates match, use the most recent one
@@ -42,10 +43,17 @@ ls -la docs/brainstorms/*.md 2>/dev/null | head -10
 4. **Skip the idea refinement questions below** - the brainstorm already answered WHAT to build
 5. Use brainstorm decisions as input to the research phase
 
-**If multiple brainstorms could match:**
-Use **AskUserQuestion tool** to ask which brainstorm to use, or whether to proceed without one.
+**If a relevant spike exists:**
+1. Read the spike document
+2. Announce: "Found spike from [date]: [topic]. Using findings and concrete steps as context."
+3. Extract findings, concrete steps, and any open questions
+4. Use spike findings to inform research and planning — the spike already investigated the unknowns
+5. Spike concrete steps can feed directly into implementation phases
 
-**If no brainstorm found (or not relevant), run idea refinement:**
+**If multiple brainstorms/spikes could match:**
+Use **AskUserQuestion tool** to ask which to use, or whether to proceed without one.
+
+**If no brainstorm or spike found (or not relevant), run idea refinement:**
 
 Refine the idea through collaborative dialogue using the **AskUserQuestion tool**:
 
@@ -79,7 +87,7 @@ Run these skills **in parallel** to gather local context:
 
 **What to look for:**
 - **Repo research:** existing patterns, AGENTS.md guidance, technology familiarity, pattern consistency
-- **Learnings:** documented solutions in `docs/solutions/` that might apply (gotchas, patterns, lessons learned)
+- **Learnings:** documented solutions in `~/docs/solutions/` that might apply (gotchas, patterns, lessons learned)
 
 These findings inform the next step.
 
@@ -113,7 +121,7 @@ Run these subagents in parallel:
 After all research steps complete, consolidate findings:
 
 - Document relevant file paths from repo research (e.g., `app/services/example_service.rb:42`)
-- **Include relevant institutional learnings** from `docs/solutions/` (key insights, gotchas to avoid)
+- **Include relevant institutional learnings** from `~/docs/solutions/` (key insights, gotchas to avoid)
 - Note external documentation URLs and best practices (if external research was done)
 - List related issues or PRs discovered
 - Capture CLAUDE.md conventions

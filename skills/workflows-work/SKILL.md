@@ -174,7 +174,7 @@ This command takes a work document (plan, specification, or task file) and execu
    - **analyze-performance**: Check for performance issues
    - **review-security**: Scan for security vulnerabilities
 
-   Run reviewers in parallel with Task tool:
+   Run reviewers subagents:
 
    ```
    Task(review-code-simplicity): "Review changes for simplicity"
